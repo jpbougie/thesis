@@ -1,0 +1,48 @@
+\documentclass[a4paper]{report}
+\usepackage{fontspec}
+
+\defaultfontfeatures{Mapping=tex-text} % converts LaTeX specials (``quotes'' --- dashes etc.) to unicode
+\setromanfont [Ligatures={Common}, Numbers={OldStyle}]{Hoefler Text}
+\setmonofont[Scale=0.8]{Monaco} 
+\setsansfont[Scale=0.9]{Helvetica Neue} 
+
+% ---- CUSTOM AMPERSAND
+\newcommand{\amper}{{\fontspec[Scale=.95]{Hoefler Text}\selectfont\itshape\&}}
+
+\usepackage{sectsty} 
+\usepackage[normalem]{ulem}
+\chapterfont{\sffamily\bfseries\huge}
+\sectionfont{\mdseries\large} 
+\subsectionfont{\rmfamily\mdseries\scshape\normalsize} 
+\subsubsectionfont{\rmfamily\bfseries\upshape\normalsize}
+
+\usepackage{setspace}
+
+\begin{document}
+
+\onehalfspacing
+
+\title{Natural Language Query Analysis in a Multi-Domain Question-Answering Framework}
+\author{Jean-Philippe bougie}
+\date{July 2009}
+
+\maketitle
+
+\pagenumbering{roman}
+\tableofcontents
+\listoffigures
+\listoftables
+
+\chapter*{Acknowledgements}
+
+\begin{abstract}
+\end{abstract}
+
+\pagenumbering{arabic}
+
+
+
+\include{Chapters/Background}
+
+
+\end{document}
