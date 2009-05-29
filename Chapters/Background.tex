@@ -27,5 +27,22 @@ In order for a user to query the database of information and knowledge available
 \subsection{Query to Domain Mapper} % (fold)
 \label{sub:query_to_domain_mapper}
 
+While the set of sub-queries is a first step towards actually executing the query, it still represents an abstract, human request that might or might not correspond to the the services available in the system. The Query to Domain Mapper will take each sub-query in turn, and corresponding to the vocabulary used and the elements in the query, will try to associate a domain as stored in the domain framework. It will send this augmented request to the next component, the query planner.
+
 % subsection query_to_domain_mapper (end)
+
+\subsection{Query Planner} % (fold)
+\label{sub:query_planner}
+
+The Query Planner's task is to take the set of high-level queries to different domains and turn it into an executable plan. This involves planning the fetching of data to web services, taking into account the frequency and quantity of data that will be required, and the merge operations that will be done, all in order to minimize the time and memory spent, as well as any costs related to the user of the web services.
+
+This plan is now ready to be executed by the query engine.
+
+% subsection query_planner (end)
+
+\subsection{Query Engine} % (fold)
+\label{sub:query_engine}
+This component takes the low-level plan from the query planner and executes the different service calls in parallel, merging and ordering when required. It will return the final results of the query in a pure format that can then be transformed to suit the needs of the end user who made the query, either by producing HTML, XML or any other implemented format.
+% subsection query_engine (end)
+
 % chapter background (end)
