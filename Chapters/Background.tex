@@ -12,6 +12,20 @@ The proliferation of open and accessible web services has allowed the world to a
 
 \section{SeCo -- Search Computing}
 
+SeCo is a platform that aims to enable the type of advanced research described before.
 
+\subsection{General Architecture}
 
+SeCo is divided in different higher-level components orchestrated in a service-oriented manner. The main components are the query analysis, the query-to-domain mapper, the query planner and the query engine. Two frameworks named the service and domain frameworks are also added as intelligent repositories.
+
+A query sent from the user first passes through the query analysis and the query-to-domain mapper, where the different domains and properties are extracted from the natural language query. It then goes to the query planner, which creates an execution plan taking into accounts the different costs associated to executing the query, in order to create the most efficient execution. The different subqueries are then sent to the domain and service frameworks, which take care of calling the external services through a Web or messaging interface. The results are then collected, and, according to the plan, merged back together. The final results are then sent back to the user.
+
+\subsection{Query Analysis}
+
+In order for a user to query the database of information and knowledge available in SeCo, he or she first needs to input it, whether by a Web interface, or by making a direct call to the programming interface of the system. The type of query the user gives can vary a lot, and it is for the system to try and understand the meaning of the question. In general, the contract of this component is to take the input as given by the user, try to separate it according to the sub-queries that can be found and send those down the line to the query planner.
+
+\subsection{Query to Domain Mapper} % (fold)
+\label{sub:query_to_domain_mapper}
+
+% subsection query_to_domain_mapper (end)
 % chapter background (end)
