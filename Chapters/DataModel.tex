@@ -1,15 +1,79 @@
 %!TEX root = /Users/jp/Thesis/Thesis.tex
-\chapter{Data Model \amper\ Interface} % (fold)
-\label{cha:data_model_interface}
+\chapter{Data Models \amper\ Interfaces} % (fold)
+\label{cha:data_models_interfaces}
 
 \section{Introduction} % (fold)
 \label{sec:introduction}
-  Write the introduction
+
+For the subject of this research, the only components to be considered will be the Query Analysis and the Query to Domain Mapper, as well as the Domain Framework. We will thus consider these interdependent components as the only parts of interest, and will only define their interaction to the rest of the system by the input and output interfaces and data that they will exchange.
+
 % section introduction (end)
 
-\section{Data Model} % (fold)
-\label{sec:data_model}
-The data model
-% section data_model (end)
+\section{Data Models} % (fold)
+\label{sec:data_models}
+Different data models are used in the components, both internally and externally. The ones interesting for this research correspond to the ones that will be given as inputs and outputs to the different components and that will allow us to interact with those components.
 
-% chapter data_model__interface (end)
+The Query Analysis component will require two data models; The high-level query is its main input, while it outputs principally an abstract low-level query. The Query-to-domain Mapper will take that abstract query, and replace it with a concrete low-level query. The Domain Framework will make use of the additional data model that is the Domain Descriptor.
+
+\subsection{High-level Query} % (fold)
+\label{sub:high_level_query}
+
+A high-level query is given as input to the query analysis, and is for the most part the direct input of the user. It will be given in the form of a quasi-natural question. It can optionally be augmented with some hints that will be in the form of Google Search's keywords, such as "ranking: temperature" or "domain: conference". Internally, this high-level query will be taken as a single string of arbitrary length.
+
+% subsection high_level_query (end)
+
+\subsection{Low-level Query} % (fold)
+\label{sub:low_level_query}
+
+A low-level query, either in the abstract or concrete form, will be given in a datalog-like format, that is, as a set of logical predicates describing the properties of diverse objects. These predicates will allow the use of constants, which will define restrictions on the properties of the desired outputs, as well as variables, which will roughly be in a similar amount to the number of different domains that can be extracted from the query. Extensions to the format include complex boolean logic, as well as special predicates that will control the ranking.  Following is an example low-level query, where an uppercase symbol denote a variable and a lowercase one a constant. The associated high-level query for this would be "Give me a conference about computer science in a country where the average temperature is higher than 20 degrees".
+
+\begin{verbatim}
+  type(X, conference).
+  type(Y, country).
+  topic(X, computer science).
+  country(X, Y).
+  average_temperature(Y, > 20).
+\end{verbatim}
+
+Additionally, such a query can be made concrete by annotating it with the corresponding domains, as well as the services that will be needed during the execution of the query, making it into the following example.
+
+\begin{verbatim}
+  type(X, conference).
+  type(Y, country).
+  topic(X, computer science).
+  country(X, Y).
+  average_temperature(Y, > 20).
+  
+  domain(X, events).
+  domain(Y, country).
+  service(X, service_ref(123)).
+  service(Y, service_ref(456)).
+\end{verbatim}
+
+It is important to note the difference between the type of the object and its domain. In our case, we can see that the Y object share the same type and domain. On the other hand, the X object, of type conference, will be deducted to be an element of the query domain of events. The object in that case becomes a predicate that will restrict the field of search on this particular generic domain.
+
+% subsection low_level_query (end)
+
+\subsection{Domain} % (fold)
+\label{sub:domain}
+
+For the purposes of our research, a domain will be simply considered as a mapping between a unique name (eg. Event) and a series of keywords organized either as a simple bag, as an ontology or a taxonomy. It will also contain the different services that can be used to answer a query that corresponds to the selected domain.
+% subsection domain (end)
+
+% section data_models (end)
+
+\section{Interfaces} % (fold)
+\label{sec:interfaces}
+
+While the components are organized in a chain corresponding to the flow of information in the system, they will be mostly independent from one another, that is, the components will not call directly their successor to continue the execution. Instead, they will be organized in a service fashion, where they will only respond to a request by sending back a response to the client. The client in the main case will be an orchestrator that will take into account each component, calling them in turn and validating the output after each step, taking care of error and exception checking, as well as interaction with the end user through an HTTP or graphical interface.
+
+Thus, each component will be defined individually in regards to its external interface, although one component might make use of another component internally (for example, the Query-to-Domain Mapper will use the Domain Framework).
+
+\subsection{Query Analysis} % (fold)
+\label{sub:query_analysis}
+
+% subsection query_analysis (end)
+
+% section interfaces (end)
+
+% chapter data_models__interfaces (end)
