@@ -16,9 +16,9 @@ SeCo is a platform that aims to enable the type of advanced research described b
 
 \subsection{General Architecture}
 
-SeCo is divided in different higher-level components orchestrated in a service-oriented manner. The main components are the query analysis, the query-to-domain mapper, the query planner and the query engine. Two frameworks named the service and domain frameworks are also added as intelligent repositories.
+SeCo is divided in different higher-level components orchestrated in a service-oriented manner. The main components are the query analysis, the query-to-domain mapper, the query planner, the query engine and the results transformation. Two frameworks named the service and domain frameworks are also added as intelligent repositories.
 
-A query sent from the user first passes through the query analysis and the query-to-domain mapper, where the different domains and properties are extracted from the natural language query. It then goes to the query planner, which creates an execution plan taking into accounts the different costs associated to executing the query, in order to create the most efficient execution. The different subqueries are then sent to the domain and service frameworks, which take care of calling the external services through a Web or messaging interface. The results are then collected, and, according to the plan, merged back together. The final results are then sent back to the user.
+A query sent from the user first passes through the query analysis and the query-to-domain mapper, where the different domains and properties are extracted from the natural language query. It then goes to the query planner, which creates an execution plan taking into accounts the different costs associated to executing the query, in order to create the most efficient execution. The different subqueries are then sent to the domain and service frameworks, which take care of calling the external services through a Web or messaging interface. The results are then collected, and, according to the plan, merged back together. The final results are then transformed before being sent back to the user.
 
 \subsection{Query Analysis}
 
@@ -36,13 +36,20 @@ While the set of sub-queries is a first step towards actually executing the quer
 
 The Query Planner's task is to take the set of high-level queries to different domains and turn it into an executable plan. This involves planning the fetching of data to web services, taking into account the frequency and quantity of data that will be required, and the merge operations that will be done, all in order to minimize the time and memory spent, as well as any costs related to the user of the web services.
 
-This plan is now ready to be executed by the query engine.
+This plan is now ready to be executed by the query engine as it contains precise instructions on what to execute and in which order. It is comparable to having taken a declarative program as input and obtaining an imperative program that can be run directly.
 
 % subsection query_planner (end)
 
 \subsection{Query Engine} % (fold)
 \label{sub:query_engine}
-This component takes the low-level plan from the query planner and executes the different service calls in parallel, merging and ordering when required. It will return the final results of the query in a pure format that can then be transformed to suit the needs of the end user who made the query, either by producing HTML, XML or any other implemented format.
+This component takes the low-level plan from the query planner and executes the different service calls in parallel, merging and ordering when required. It will return the final results of the query in a pure and internal format as they become available, sending them to the results transformation component for their final processing.
+
+Care must be taken in accord to the availability and performance of the invoked services. Since there is an heavy reliance on external components, failures or low performance problems will be common and will have to be considered while fetching the results.
 % subsection query_engine (end)
+
+\subsection{Results Transformation} % (fold)
+\label{sub:results_transformation}
+This component's role is to take the results as given by the Query Engine, and to transform and format them in the way that was required by the client. It implements features such as paging, XML or XHTML output.
+% subsection results_transformation (end)
 
 % chapter background (end)
