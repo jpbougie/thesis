@@ -72,7 +72,44 @@ Thus, each component will be defined individually in regards to its external int
 \subsection{Query Analysis} % (fold)
 \label{sub:query_analysis}
 
+The query analysis will respond to a very simple interface. It consists of one method that takes a high-level query as given by a user and outputs a series of abstract low-level queries as presented earlier. These low-level queries will be wrapped in a result object that allow the component to give additional information such as the things it ignored or could not understand, the errors it encountered, which might be useful to help the user refine its search.
+
+\begin{verbatim}
+  type result = { annotations: string[], queries: lowLevelQuery[]}
+  analyzeQuery(highLevelQuery: string): result
+\end{verbatim}
+
 % subsection query_analysis (end)
+
+\subsection{Query to Domain Mapper} % (fold)
+\label{sub:query_to_domain_mapper_int}
+
+The query to domain mapper will also follow a simple contract, that is, of taking the abstract low-level queries given directly or transformed from a high-level query through the query analysis, and making them concrete, that is associating the domain and the web service to call to each individual low-level query.
+
+\begin{verbatim}
+  mapDomain(queries: lowLevelQuery[]): lowLevelQuery[]
+\end{verbatim}
+
+% subsection query_to_domain_mapper_int (end)
+
+\subsection{Domain Framework} % (fold)
+\label{sub:domain_framework}
+
+For the purpose of this thesis, the only interfaces that will be needed to use the domain framework will be the ones that allow us to associate a domain from a query object, as well as the one that will help us find a service from a pre-selected domain. To obtain the domain, we will want to give the framework the object we consider at the center of the domain query (eg. \emph{conference}\ in ``give me a conference about computer science...''), as well as the sentence fragment to help the framework disambiguate on certain cases. It will return the most likely domain associated with that object, or None if it can't find anything that could be used.
+
+\begin{verbatim}
+  type domain = int // a domain is identified by an integer
+  findDomain(object: string, fragment: string): domain
+\end{verbatim}
+
+The second interface takes the domain and the queries and will return the best service to use considering the conditions in the query. Some services
+
+\begin{verbatim}
+  type service = int // a service is also identified by an integer
+  getServiceFromDomain(aDomain: domain, query: lowLevelQuery[]): service
+\end{verbatim}
+
+% subsection domain_framework (end)
 
 % section interfaces (end)
 
