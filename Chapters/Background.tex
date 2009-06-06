@@ -9,10 +9,46 @@ Slow progress has been made in that field, and several projects have implemented
 
 The proliferation of open and accessible web services has allowed the world to access, aggregate and mix data in previously unthought ways. This has led a team at Politecnico di Milano to undertake the effort of building a system that pushes the boundaries presented in the previous paragraph. This system called SeCo is under active development and shall be described further.
 
+\section{Definitions} % (fold)
+\label{sec:definitions}
+
+Before getting into deeper details about the project, it is important to clearly define some terms that will be used throughout this report.
+
+\subsection{Web Service} % (fold)
+\label{sub:web_service_def}
+
+We think of Web Services in an abstract sense, as providers of content in response to a request, over the Internet. We assume that they can answer a precise query based on a set of defined conditions, and that they will return an ordered set of answers, the order being either based on a criteria provided by the user or by a relevancy score internal to the service. We can further take in consideration that the service has some performance rating, depending on the delay in which it returns the results as well as the quantity and quality of the results. Furthermore, we expect most web services to support some kind of pagination protocol in order to retrieve subsets of the data sequentially. Another important aspect of the services is that they might be subject to a monetary cost, or a limit in the querying rate, based on a daily period or otherwise.
+
+For our purpose, the technology used for the transport and querying interface doesn't matter, be it SOAP, REST, Protobuffers or another binary or text encoding protocol. We assume that an adapter will be developed for each type of Web Service in order to use it.
+
+% subsection web_service_def (end)
+
+\subsection{Domain} % (fold)
+\label{sub:domain_def}
+
+A domain is a field of research as provided by one or more search engines. It could be, for example, international events, health professionals, countries information. In a query made by a user, a domain is characterized by the following parts:
+
+\begin{itemize}
+
+  \item One or more objects: While a domain represent an abstract entity, these are the concrete apparitions of the domain within the query. They may correspond directly to the name of the domain (eg. Give me a warm \emph{country}\ with cheap flights on the weekend of the first of may) or not (eg. Give me a \emph{conference}\ about computer science where I can also go to the opera, where conference is an object of the domain ``Event''). Additionally, more than one objects might refer to the same domain, in which case they need to be taken together.
+
+  \item Conditions: Some conditions are given explicitly (eg. Give me a conference \emph{about computer science}.), while others can be deducted from the objects (\emph{conference}\ being a type of event). In general, conditions restrict the field of search that will be sent to the service. Some conditions are objective while others make use of subjective judgements (eg. \emph{warm}\ country).
+
+  \item Ordering: Making the ranking and ordering according to some relevance score is an integral part of this project, and thus the ordering must be extracted and taken into account while answering a user's query. Again, some conditions can be subjective (the \emph{best}\ doctor in the region) while other elements can be taken both as a condition and as an implicit ordering ( \emph{cheap}\ flights will expose a cutoff in addition to the ordering by ascending price).
+
+  \item One or more joins with other domains: at the core of this project is the presence of multiple domains within one query. These different domains must be joined in some way. These joins can be explicit, or inferred through a chain of relationships (an event is an city, that city is in a country) as expressed through a semantic network.
+
+\end{itemize}
+
+
+% subsection domain_def (end)
+
+% section definitions (end)
+
 
 \section{SeCo -- Search Computing}
 
-SeCo is a platform that aims to enable the type of advanced research described before.
+SeCo is the platform which aims to push the limits of the field of multi-domain queries by formalizing theoretical aspects as well as providing a software engineering point of view, enabling the construction of a usable search engine that will answer arbitrary queries.
 
 \subsection{General Architecture}
 
