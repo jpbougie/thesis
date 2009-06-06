@@ -102,7 +102,7 @@ For the purpose of this thesis, the only interfaces that will be needed to use t
   findDomain(object: string, fragment: string): domain
 \end{verbatim}
 
-The second interface takes the domain and the queries and will return the best service to use considering the conditions in the query. Some services
+The second interface takes the domain and the queries and will return the best service to use considering the conditions in the query. Some services will take different parameters, and so, depending on the conditions that are requested in the query, a different service might be called. This is why we include the query in the search for a proper service.
 
 \begin{verbatim}
   type service = int // a service is also identified by an integer
