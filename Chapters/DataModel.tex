@@ -3,11 +3,11 @@
 \label{cha:data_models_interfaces}
 
 \section{Introduction} % (fold)
-\label{sec:introduction}
+\label{sec:introduction_data_models}
 
 For the subject of this research, the only components to be considered will be the Query Analysis and the Query to Domain Mapper, as well as the Domain Framework. We will thus consider these interdependent components as the only parts of interest, and will only define their interaction to the rest of the system by the input and output interfaces and data that they will exchange.
 
-% section introduction (end)
+% section introduction_data_models (end)
 
 \section{Data Models} % (fold)
 \label{sec:data_models}
@@ -70,7 +70,7 @@ While the components are organized in a chain corresponding to the flow of infor
 Thus, each component will be defined individually in regards to its external interface, although one component might make use of another component internally (for example, the Query-to-Domain Mapper will use the Domain Framework).
 
 \subsection{Query Analysis} % (fold)
-\label{sub:query_analysis}
+\label{sub:query_analysis_dm}
 
 The query analysis will respond to a very simple interface. It consists of one method that takes a high-level query as given by a user and outputs a series of abstract low-level queries as presented earlier. These low-level queries will be wrapped in a result object that allow the component to give additional information such as the things it ignored or could not understand, the errors it encountered, which might be useful to help the user refine its search.
 
@@ -79,7 +79,7 @@ The query analysis will respond to a very simple interface. It consists of one m
   analyzeQuery(highLevelQuery: string): result
 \end{verbatim}
 
-% subsection query_analysis (end)
+% subsection query_analysis_dm (end)
 
 \subsection{Query to Domain Mapper} % (fold)
 \label{sub:query_to_domain_mapper_int}

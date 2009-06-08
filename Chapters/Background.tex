@@ -2,12 +2,15 @@
 \chapter{Background} % (fold)
 \label{cha:background}
 
-\section{Introduction}
+\section{Introduction} % (fold)
+\label{sec:introduction_bg}
 Over the years, great advances have been made in the fields of search and information retrieval. A lot of attention has been brought over the topics of full-text search or document indexing. This great deal of effort has brought upon us tools, such as Google, Yahoo, that allow us to retrieve any document available on the web that might be related to a topic we are searching for. This has had great repercussions upon the world, democratizing and easing the access to information all over the world. However, as we depend more and more upon this type of simple but wide search, we have reached the limits of such a system. It is not documents we are now looking for, but precise answers to questions. It is no longer sufficient to give the user a list of documents that he has to read in order to possibly find an answer. We now need to give the user a proper and actionable answer.
 
 Slow progress has been made in that field, and several projects have implemented some question answering applied to one restricted field or situation, where factual information is available and the input domain is restricted enough to narrow the question down to one possible answer. What is now needed are improvement in two areas: first, the single-domain restriction must be lifted, as question might span more than one domain(e.g. Who was the president of italy the year the man first went to the moon); secondly, a next-generation search engine should be able to provide results for not only questions about precise facts, but also about what we can name judgement calls, questions where many options can be narrowed down and offered according to a precise ranking (e.g. Where can I find a cheap Chinese restaurant in Milan).
 
 The proliferation of open and accessible web services has allowed the world to access, aggregate and mix data in previously unthought ways. This has led a team at Politecnico di Milano to undertake the effort of building a system that pushes the boundaries presented in the previous paragraph. This system called SeCo is under active development and shall be described further.
+
+% section introduciton_bg (end)
 
 \section{Definitions} % (fold)
 \label{sec:definitions}
@@ -46,19 +49,26 @@ A domain is a field of research as provided by one or more search engines. It co
 % section definitions (end)
 
 
-\section{SeCo -- Search Computing}
+\section{SeCo -- Search Computing} % (fold)
+\label{sec:seco}
 
 SeCo is the platform which aims to push the limits of the field of multi-domain queries by formalizing theoretical aspects as well as providing a software engineering point of view, enabling the construction of a usable search engine that will answer arbitrary queries.
 
-\subsection{General Architecture}
+\subsection{General Architecture} % (fold)
+\label{sub:general_architecture}
 
 SeCo is divided in different higher-level components orchestrated in a service-oriented manner. The main components are the query analysis, the query-to-domain mapper, the query planner, the query engine and the results transformation. Two frameworks named the service and domain frameworks are also added as intelligent repositories.
 
 A query sent from the user first passes through the query analysis and the query-to-domain mapper, where the different domains and properties are extracted from the natural language query. It then goes to the query planner, which creates an execution plan taking into accounts the different costs associated to executing the query, in order to create the most efficient execution. The different subqueries are then sent to the domain and service frameworks, which take care of calling the external services through a Web or messaging interface. The results are then collected, and, according to the plan, merged back together. The final results are then transformed before being sent back to the user.
 
-\subsection{Query Analysis}
+% subsection general_architecture (end)
+
+\subsection{Query Analysis} % (fold)
+\label{sub:query_analysis}
 
 In order for a user to query the database of information and knowledge available in SeCo, he or she first needs to input it, whether by a Web interface, or by making a direct call to the programming interface of the system. The type of query the user gives can vary a lot, and it is for the system to try and understand the meaning of the question. In general, the contract of this component is to take the input as given by the user, try to separate it according to the sub-queries that can be found and send those down the line to the query planner.
+
+% subsection query_analysis (end)
 
 \subsection{Query to Domain Mapper} % (fold)
 \label{sub:query_to_domain_mapper}
@@ -87,5 +97,7 @@ Care must be taken in accord to the availability and performance of the invoked 
 \label{sub:results_transformation}
 This component's role is to take the results as given by the Query Engine, and to transform and format them in the way that was required by the client. It implements features such as paging, XML or XHTML output.
 % subsection results_transformation (end)
+
+% section seco (end)
 
 % chapter background (end)
