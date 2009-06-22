@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>Chapters/Background.tex</string>
+	<string>Chapters/Tools.tex</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -26,37 +26,51 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>233</integer>
+				<integer>141</integer>
 				<key>line</key>
-				<integer>50</integer>
+				<integer>75</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>38</integer>
+			<integer>63</integer>
 		</dict>
 		<key>Chapters/DataModel.tex</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>30</integer>
 				<key>line</key>
-				<integer>112</integer>
+				<integer>81</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>49</integer>
+			<integer>65</integer>
+		</dict>
+		<key>Chapters/Tools.tex</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>21</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>13</integer>
 		</dict>
 		<key>Thesis.tex</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>50</integer>
+				<integer>23</integer>
 				<key>line</key>
-				<integer>24</integer>
+				<integer>49</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -67,6 +81,7 @@
 	<key>openDocuments</key>
 	<array>
 		<string>Thesis.tex</string>
+		<string>Chapters/Tools.tex</string>
 		<string>Chapters/DataModel.tex</string>
 		<string>Chapters/Background.tex</string>
 	</array>
