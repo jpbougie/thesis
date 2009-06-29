@@ -134,6 +134,14 @@ While, in the end, some flattening must take place to reduce the question to a s
 \subsection{Natural Language Processing} % (fold)
 \label{sub:natural_language_processing}
 
+This set of techniques and sciences takes it name from natural languages, under which we group all the human languages, such as English, Italian, Chinese, and which we distinguish from the formal and simplistic languages used to instruct a computer, like C++, Java.
+
+This is a domain of very active research in which many challenges still reside. The main problems that a tool in this realm faces are that the languages we speak and write make use of highly contextual and ambiguous syntaxes, for which the usual computer language processing tools are direly unadapted.
+
+The basic techniques are about annotating each part of the input with various categorizations, and then organize these tokens into complex structures. One first categorization is part-of-speech tagging, where each word in the sentence is attributed its grammatical role, that is, verb, noun, adjective, adverb or other. Another is word sense disambiguation, where the sense of a word is selected from many possibilities using the context around the word.
+
+A second and more convoluted pass is to make sense of the whole sentence, that is, to give it a structure. This structure, which we can call a Parse Tree, can then be used to extract the meaning of the sentence and it is what we use to try to translate the user input into a form that can be acted upon by the search engine.
+
 % subsection natural_language_processing (end)
 
 \section{Parse Trees} % (fold)
