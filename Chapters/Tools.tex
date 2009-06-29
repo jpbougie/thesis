@@ -18,8 +18,6 @@ In order to grasp the intricacies of the problem of parsing natural language que
 
 This tool presents a simple list view where, by default, the yet unfiltered entries are shown. Through the use of keyboard shortcuts or the provided links, the user can circle through the entries, accepting or rejecting them. The entries are stored permanently, whether accepted or not, and it is then possible to change mode and go look at the previously accepted or rejected entries, before coming back to filter new ones. The tool will load new entries from Yahoo! Answers as the number of unfiltered entries get low, insuring a steady amount of entries to filter.
 
-Internally, this data is stored to a SQLite database and is shown using the Merb web framework, with the use of the jQuery framework to enhance the site with Javascript.
-
 Another interesting functionality of this tool is the ability to inspect individual entries, giving a view of how they would be parsed using both the shallow parser and the Stanford parser, which shall be described further. Parsing a large corpus such as this one is not a trivial matter, and so, a second tool was developed to offload and distribute the parsing tasks to diverse computers. This tool, called Bee, uses a simple queue service as a central dispatching mechanism and connects to a document database to store the results. Its concept is centered around tasks, defined by the developer, which are run by workers waiting for messages on a pre-defined queue. In answer to these parameterized messages, the worker will launch the task and store its result on the database. On the other side, we have the Siphon tool posting messages to this queue as new entries are created, and using the results from the document database to show to the user.
 
 The queue used is Kestrel, which is a simple open-source queue implementation in Scala reusing the now common Memcache protocol, and which has proved its stability and performance at Twitter Inc. where it was developed. As we could expect the schema of the documents to change often as new tasks are added to the service, a schema-less database was chosen. Given the breadth of technology used, the Apache CouchDB project was used as it internally keeps data in the JSON format which has a wide support across different languages. The data structures available in JSON, like objects and arrays, were an essential asset for the transcoding of the parse trees to a common format. The Bee software itself is also written in Scala, providing an easy object-oriented concurrency model based on the actors concept.
@@ -31,5 +29,18 @@ In the spirit of open source and given the strong use of it during the developme
 \section{Parsers} % (fold)
 \label{sec:parsers}
 
+The first phase of the query analysis was to extract the grammatical structure of the question asked by the user. The existing approaches that are currently widely used are based either on formal grammars, or on keyword extraction.
+
+The first approach is to require the user to input a very structured and often unnatural query. The best example that can be given is that of SQL, the Structured Query Language, that specifies a declarative programming language used by the client as the only mean to access the data. Queries formally define the kind of data that is to be retrieved, the 
+
+
+ In order to do that, it was decided to use a natural language parser, that can turn a simple sentence into an annotated series of tokens organized in a hierarchical manner according to the grammatical structures and features of the sentence. Two such tools were chosen to be evaluated, the Stanford Natural Language Parser and the University of Illinois at Urbana-Champaign's Shallow Parser. 
+
+While they both use different techniques and thus produce different results for the same input, they have great similarities. Both are based on a statistical and probabilistic analysis that will discern the most likely structure from the tokens in the sentence, assigning each one a role in the sentence as well a grouping the structures together.
+
+\subsection{Stanford Parser} % (fold)
+\label{sub:stanford_parser}
+The Stanford Parser is a Java library created at Stanford University that is able to turn natural language input into structured trees annotated with the grammatical roles of each part of the sentence and the structure that links those tokens together. Here is an example of what the stanford parser would output for a simple input:
+% subsection stanford_parser (end)
 % section parsers (end)
 % chapter tools (end)
