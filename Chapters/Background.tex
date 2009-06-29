@@ -119,7 +119,17 @@ On top of the WordNet database, another project called WordNet Domains has taken
 \section{Query Analysis} % (fold)
 \label{sec:query_analysis}
 
+In general, we consider Query Analysis to encompass the set of techniques that allow a program to translate an input question into a form that can be acted upon by an information retrieval program, be it a relational database or a complex question-answering system like SeCo.
 
+In particular, the input can be presented in many forms. The first and simplest of these is to require a completely formal and structured syntax, such as the case of SQL. In this case, a parser for a context-free grammar can formally translate the input or outright reject it without any doubt to the result of the query. Of course, in that case, the burden is put upon the end user to enter a valid query as the analysis is strict. While this presents many advantages in the realms of consistency and reliability, it is often an impossible task a user to comply with, which makes it impractical for an end-user application.
+
+The opposite to this previous representation is to allow a free form input to take place, accepting liberally and trying to make sense of it. This moves the burden from the user to the computer program who has to accept a dizzying range of possible inputs, with possible grammatical mistakes, strange constructions or unclear demands. Even then, there are many possible levels in which the query can be analyzed.
+
+The most widely used model today is to take the input from the user as a simple bag of words, discarding the parts that present little differentiating power or that are not understood. This is a simple approach that works well when a simple match between the keywords and the results can made, for example in the field of document retrieval, where the presence of the words in a document is a good indicator of its relevance and should award its presence in the results.
+
+While this is an interesting approach that warrants good results, it is limited by its simplicity, as it does not allow to understand the full expression of the language. Links between words and parts of the sentence are ignored, and the structure of the sentence, which in many cases can be quite revealing, is flattened into a single level.
+
+While, in the end, some flattening must take place to reduce the question to a simpler representation, advanced techniques allow to make this procedure in a more intelligent fashion, and make use of the general category of tools that can be grouped under the term \emph{Natural Language Processing}.
 
 \subsection{Natural Language Processing} % (fold)
 \label{sub:natural_language_processing}
