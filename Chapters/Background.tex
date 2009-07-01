@@ -261,10 +261,20 @@ We can see the main features of any parsed sentences, that is, a top level ROOT 
 \section{Use of Query Analysis within SeCo} % (fold)
 \label{sec:use_of_query_analysis_within_seco}
 
+The Search Computing project aims to reach a new level within the worlds of search engines and question-answering expert systems, allowing to link previously difficult to access data bases in new and interesting ways. The project has seen great progress in hiding most of this complexity away from the users. A critical part of this interfacing between end users and the system itself is to get the user to input its query in the most natural way possible.
+
+Getting back to the original vision of the problem, we see that the project aims to help users answer questions, questions which were previously tedious to search for, both because they required access to opaque services, as well as a lot of manual work to coordinate the answers from the various services in a reasonable manner. Given that we want now to answer these questions for the user, it makes sense to take as input the question itself as it has been formulated by a user, and give the best answer given the system's access to external services which can provide parts of the answers.
+
+In this fashion, query analysis is required to translate the question from the natural way a user would input it, into a form the system can understand and act upon. Most primordially, it is necessary to use query analysis to understand which domains are put into play within the question, leading the system to choose the corresponding services.
+
 % section use_of_query_analysis_within_seco (end)
 
 \section{Originality} % (fold)
 \label{sec:originality}
+
+While much progress has been done in the field of expert or question-answering systems, they mostly limit themselves to either a single topic or a very simple, unnatural syntax. This simplifies the problem greatly, but it still moves the burden of getting interesting results from the system, where it should be, to the user, who now has to put great effort in getting the system to understand him.
+
+Furthermore, existing projects usually take a bottom-up approach, where the data is organized and a service is offered to access it in diverse fashions, and where the input possibilities are dictated by the shape and organization of the data model. On the other hand, ours is following a top-down methodology, taking as base the input of the user, and try to extract meaning from it. This is both required by the great variety and variability that is found in the interacting services, as well as desirable from a point of view, as it will provide a much easier access to complex queries, queries that would have taken pages of declarative queries using previous approaches.
 
 % section originality (end)
 
