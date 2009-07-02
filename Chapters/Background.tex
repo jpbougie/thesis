@@ -53,6 +53,13 @@ A query sent from the user first passes through the query analysis and the query
 
 % subsection general_architecture (end)
 
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics[width=\linewidth]{images/secoarchitecture}
+  \end{center}
+  \caption{The High-level Architecture of SeCO}\label{fig:secoArchitecture}
+\end{figure}
+
 \subsection{Query Analysis} % (fold)
 \label{sub:query_analysis}
 
@@ -95,7 +102,16 @@ This component's role is to take the results as given by the Query Engine, and t
 
 In order to get some interesting results and also to test the validity of our approach, a corpus of example data was required. Given the originality of the project, there was no available corpus that is both already filtered and annotated according to our needs. While there are corpora that include single-domain tagging, or simple text annotations, none were specific enough to include multi-domain questions highlighted with the parts of the sentences that correspond to diverse domains and that include the domains related to each question.
 
+\subsection{Initial Choice} % (fold)
+\label{sub:initial_choice}
+
 We thus had to go find a large and open source of questions that could possibly be asked by end users and that could eventually be automatically translated into the format needed by the query engine. One such source was found to be Yahoo! Answers, a service where users can input their questions about diverse subjects and have other users directly and personally answer. While they do not give a complete access to their corpus, they provide, free of charge, a Web application programming interface that allows the gradual extraction of the questions.
+
+% subsection initial_choice (end)
+
+
+\subsection{Issues with the Input} % (fold)
+\label{sub:issues_with_the_input}
 
 Questions in Yahoo! Answers are organized in categories representing different areas of human interests, like technology, spirituality, family matters. In a first pass, we surveyed many of these categories, but we found the \emph{tourism}\ category to contain the overwhelming majority of interesting questions, and thus it was decided to take it as the sole sample, as the others categories had a very low signal to noise ratio.
 
@@ -103,9 +119,26 @@ This brings us to the problem of filtering this data. Given that it is undirecte
 
 Furthermore, it is to be understood that users of Yahoo! Answers get to divide their question into two different input fields, a first one containing a brief question, as well as a longer and more descriptive version of their asking. For the sake of brevity and to represent a typical question that will be input in the prototypical search box, we decided to take only the smaller version of the question as our input. As such, we also need to remove entries where user chose to input meaningless or generic data in the summary (e.g. ``Help please!'').
 
+% subsection issues_with_the_input (end)
+
+\subsection{Presence of multiple domains} % (fold)
+\label{sub:presence_of_multiple_domains}
+
 The final and most elusive criterion is the presence of a multi-domain aspect to the question. It is arguable, but it could be assumed that most users, trained for years by the mainstream search engines to ask very precise questions in order to get somewhat relevant results, are now used to ask questions in a single-domain manner, then trying to make the links themselves, even when they do ask other users. It is thus difficult to extract true multi-domain questions from the existing corpus. Furthermore, while a multi-domain question is clearly defined in terms of querying more than one service, the quality of a question to span more than one domain from the point of view of natural language is fuzzier. In particular, the difference between a single-domain question accompanied by a complex condition or a true multi-domain question can at times be confusing.
 
-To compound these diverse problems, we went from a simple yes/no filtering scheme to a more complex range of rating, where an entry is annotated with a single score which can range from 1 to 5, giving us some flexibility in organizing the results, as well as covering more possible input cases than could be extracted previously.
+% subsection presence_of_multiple_domains (end)
+
+\subsection{Evaluation Strategy} % (fold)
+\label{sub:evaluation_strategy}
+
+To compound these diverse problems, we evaluated two models of filtering. A first, based on a simple boolean heuristic, accept or reject an entry, quickly proved inflexible for its inability to represent a ranking between entries that represent good questions but that don't span multiple domains as clearly as we are looking for and those that embody exactly the characteristics of a multi-domain question.
+
+A second scheme was instead adopted, where an entry can be rated from one to five, where one is an entry that presents no interest to us, while a grade a of five means a perfect example of a multi-domain query.
+
+% subsection evaluation_strategy (end)
+
+\subsection{Other Sources} % (fold)
+\label{sub:other_sources}
 
 While this concludes the discussion on our main source of input data, further sources were used. The first of these is WordNet, the most comprehensive lexical database available to use. It consists of a library of words, organized by their grammatical roles, such as nouns, adjectives, verbs, adverbs, and which contains the various senses a word could possibly employ, as well as its various synonyms. It thus presents an interesting compound between a dictionary and a thesaurus, making it especially applicable to text analysis and artificial intelligence.
 
@@ -114,6 +147,10 @@ In addition to the simple definitions, WordNet presents a view of a semantic net
 The database represents more than a hundred and fifty thousand words that have been extracted from published texts and manually annotated. It is thus an impressively large corpus that can present many applications.
 
 On top of the WordNet database, another project called WordNet Domains has taken root, adding a new way of organizing the information found within the library. Taking as base the Dewey Index, the creating team at the Fondazione Bruno Kessler has assigned one or more domain to each synonymous set or sense a word can take, organizing the whole WordNet corpus in around 200 categories that represent human interests.
+
+
+% subsection other_sources (end)
+
 % section sources_of_input_data (end)
 
 \section{Query Analysis} % (fold)
