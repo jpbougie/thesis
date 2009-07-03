@@ -26,18 +26,29 @@ In a second phase, from this larger corpus, a smaller but most interesting secti
 \subsection{Data Extraction} % (fold)
 \label{sub:data_extraction}
 
-The first step towards achieving our goal is to obtain an interesting and sizable corpus of data to analyze and on which we can try different algorithms. In order to do this, we used the previously explained choice of Yahoo! Answers, querying it to slowly build a collection of typical user entries.
+The first step towards achieving our goal is to obtain an interesting and sizable corpus of data to analyze and on which we can try different algorithms. In order to do this, we chose to use Yahoo! Answers, as it offers many benefits. First, it consists of a extensive number of questions, out of which we can find many which present the features of multi-domain queries. In addition, the easy and open access to the Application Programming Interface insures that we can acquire data without relying on fickle screen scraping techniques that are prone to break whenever there is a slight change. The API instead provides a stable gateway into their data for those who wish to respectfully make use of it in research or for new applications.
+
+The Yahoo! Answers API has a few entry points, but we are only interested in one, which, given a category name or a category unique identifier, returns a set of questions that were registered in that category by the users. Each question contains a set of metadata that includes the unique identifier of the question, the url at which we can see it on Yahoo!'s web site, the title, a description, the date and time at which it was added and the number of answers to that question. Out of these, we keep track only of the unique identifier and the title of the question, which usually presents a small but interesting view of it.
 
 % subsection data_extraction (end)
 
-\subsection{Entry filtering \amper\ rating} % (fold)
+\subsection{Basic Filtering} % (fold)
+\label{sub:basic_filtering}
+
+Out of these entries, we can proceed to a first level of filtering where we remove any entry that are clearly too off base. Our criteria for this is to remove any entry where no question is actually asked, or where the words contain grammatical mistakes in all the words that are the core of the sentence, that is, the nouns and verbs that define the question, as our technique currently relies on a dictionary trained on published and edited texts. In further phases, pre-processing in the form of a spell check could be envisaged, but it is of no use for the current phase of building an interesting and consistent corpus of data.
+
+As the text of the question is divided into two spaces, that is the title and the description, some users have preferred to insert a generic phrase into the title and instead give all the details in the description. Since the corpus we are trying to build must represent typical entries into a query engine under the form of a single-line input box, we only wish to keep the title which has the same form. Thus, any entry where the title has no question must be torn off from the repository.
+
+As a pre-processing phase, the data will be slightly sanitized, for examples by putting the first letter in the upper case form, as well as removing any excessive punctuation
+
+% subsection basic_filtering (end)
+
+\subsection{Manual Evaluation \amper\ Rating} % (fold)
 \label{sub:entry_filtering_rating}
 
-Of course, these questions were entered by human beings for the benefit of other human beings, and while they have to be clear enough to be understood by others, no concern has been put in making them clear enough for a computer system to understand them. Thus, a lot of the entries obtained in the previous phase are lacking in content, in clarity or contain too many grammatical errors to consider them as valid entries. They have to be filtered out, or at least flagged as of little importance to our research.
+Of course, these questions were entered by human beings for the benefit of other human beings, and while they have to be clear enough to be understood by others, no concern has been put in making them clear enough for a computer system to understand them. Thus, a lot of the entries obtained in the previous phase are still lacking in content, in clarity.
 
-Similarly, we focus our attention on the multi-domain questions, and this is this aspect that we want to characterize in the corpus. We must thus highlight the entries that present this quality. The procedure we use to do that is to give them a rating that go from one, where an entry is useless or of no importance, to five, where an entry represents an excellent subject for research.
-
-This manual rating also presents an excellent opportunity for successive phases in which we can try to use the existing data as training data to try to see if we can automatically sort new entries in the good classification.
+Most importantly, we focus our attention on the multi-domain questions, and this is this core aspect of what we want to characterize in the corpus. We must thus highlight the entries that present this quality. The procedure we use to do that is to give them a rating that go from one, where an entry is useless or of no importance, to five, where an entry represents an excellent subject for research.
 
 % subsection entry_filtering_rating (end)
 
@@ -46,25 +57,51 @@ This manual rating also presents an excellent opportunity for successive phases 
 \section{Query Analysis} % (fold)
 \label{sec:query_analysis_spec}
 
+Once a suitable corpus has been built, we can proceed to the creation of techniques that will allow us to recognize and extract the domains from a question. This procedure will span many different phases, each one of them requiring different steps, from the elaboration of diverse strategies, the application of them on the corpus, and the evaluation of the results. These steps are accomplished in a cyclical manner, until the results are interesting enough to move on to the next phase.
+
 \subsection{Parsing} % (fold)
 \label{sub:parsing}
 
+The first step of the process of analysis of the queries is to parse the sentence, that is, to transform it from a simple linear and unadorned presentation into a tree representing the grammatical structure found within the sentence. This annotated structure is what will be used in the subsequent phases to split the sentence into multiple domains.
+
+In order to do this, two open source tools were chosen to be evaluated. The first one is the Stanford Natural Language Parser \footnote{See http://nlp.stanford.edu}, created at Stanford University in the United States. It is a Java-based library, that, accompanied with a trained corpus of data for the English language, will obtain a parse tree with each atom being annotated with its role, and the different structures corresponding to the parts of the sentence (object, verb, complement), being grouped into the tree. This parser uses as its internal as well as external representation, the Penn Treebank form, a widely-used formalism for representing parts of speech developed at the University of Pennsylvania. It also provides a simple Application Programming Interface where the corpus data is loaded, and then the parser is then applied to an entry, giving back the completed parse tree.
+
+To offer a comparison of the first tool, we selected the University of Illinois at Urbana-Champaign tool called the Shallow Parser \footnote{See shallow parser}. This tool, while also based on a trained set of data, presents a shallow view of the parse tree instead of a deep one like the Stanford tool does. It means that it only groups parts of the sentence with a one level precision, whereas the Stanford tool can go infinitely deep, but typically groups things down from 7 to 10 levels deep. Instead of being a library, the Shallow Parser is installed as a series of Unix tools followed by a server that answers to queries. First, the input must be sanitized and prepared for the parsing by spacing the punctuation and by performing many small transformations. The output from this first tool is then fed into a part of speech tagger that will parse the sentence and annotate each word or token with its corresponding part of the speech (noun, verb, adjective, adverb, etc.). The result is then sent to the final server, called the chunking server, that will take this series of tagged tokens and group some of them according to its heuristics, returning the final output.
+
+The two tools were compared on the quality of the results as well as on their general performance, both in terms of processing time and memory usage. The quality of the results can be defined as how accurately they annotate each atom of the sentence, which corresponds to the process of part of speech tagging, and how well they group the atoms into significant parts of the sentence which correspond to the diverse elements of the sentence (subject, action, object).
+
 % subsection parsing (end)
 
-\subsection{Extraction strategies} % (fold)
+\subsection{Spliting \amper Extraction strategies} % (fold)
 \label{sub:extraction_strategies}
+
+Following the parsing of the input corpus, the next step is to devise a strategy that will divide the single input into multiple parts of the sentence, where each part roughly corresponds to a single domain that will be searched. This is where the importance of the structure obtained in the first part comes into play, as it is by leveraging that structure and its properties that we will find many opportunities to split a domain into many different parts.
+
+Many different techniques were thought about, but two main techniques were retained and tested on the input. The first one is to split directly at the first level of the sentence, on the assumption that the upper levels of the trees will be divided in different sub-sentences where each one corresponds to a single unique domain.
+
+A second technique is to split directly according to the parser's recognition of clauses, either subjunctive or relative. It is expressed in the tree by the presence of internal nodes that have been labeled with one of the following symbols: S, SQ, SBAR, SBARQ, FRAG (refer to Table~\ref{tab:penntree_symbols} for explanations about the different symbols and their meaning).
+
+While splitting a sentence into different parts is an important step towards getting the final domains out of an entry, it still returns a response that is too coarse. That is, the parts of the sentence still contain far too many data which is of little use for us in the context of extracting the domains. In order to proceed to the next step, we must thus reduce each parts to its simplest objects, and the ones that will characterize the domain in which we find ourselves. Thus, from each part, we keep only the nouns and the verb if they correspond to meaningful actions (e.g \emph{drive}, \emph{rent}, \emph{cure}).
 
 % subsection extraction_strategies (end)
 
 \subsection{Domain Mapping Strategies} % (fold)
 \label{sub:domain_mapping_strategies}
 
+From these basic objects, nouns and verbs, we can use another set of tools and techniques to extract a meaningful domain out of it, a domain that can be mapped to a web service later using other components of SeCo. In order to do this, we focus on the tools provided by the WordNet project, and especially the add-on of WordNet Domains.
+
+The technique we use is to parse the dictionary of WordNet, which is organized by words who relate to one or more synonym sets or senses of a word, also called synsets. Each synset has a unique identifier consisting of its offset within the WordNet database. This identifier can be used to connect to its associated domains within the WordNet-Domains database, where the key is the synset offset and its values are one or more domains. Refer to Figure~\ref{fig:wordnethierarchy} to see the relationships we follow to get the domains. As it can be seen, this results in a large number of domains from a single word. In order to get the most relevant domains, we use the tf-idf information retrieval technique \footnote{See http://en.wikipedia.org/wiki/tf-idf} as a sorting mechanism, calculating the importance of a single domain by its relative presence in a single word over how common it is across all the domains we retrieved from the objects of the part.
+
+A second technique we use is to retrieve the \emph{topic} relationship directly from WordNet, which gives a word definition a relationship to another word of which it is the topic. In order to do this, we need to go into the WordNet database and extract the interesting entries, following the offset links as they come.
+
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics[width=\linewidth]{images/wordnethierarchy}
+  \end{center}
+  \caption{WordNet Hierarchy}\label{fig:wordnethierarchy}
+\end{figure}
+
 % subsection domain_mapping_strategies (end)
-
-\subsection{Results evaluation} % (fold)
-\label{sub:results_evaluation}
-
-% subsection results_evaluation (end)
 
 % section query_analysis_spec (end)
 
@@ -171,6 +208,5 @@ The second interface takes the domain and the queries and will return the best s
 % subsection domain_framework (end)
 
 % section interfaces (end)
-
 
 % chapter specifications (end)
