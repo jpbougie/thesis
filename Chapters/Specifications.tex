@@ -1,5 +1,5 @@
 %!TEX root = /Users/jp/Thesis/Thesis.tex
-\chapter{The Natural Language Query analysis and Evaluation Process} % (fold)
+\chapter{The Natural Language Query Analysis and Evaluation Process} % (fold)
 \label{cha:specifications}
 
 Given the originality of the present project, research had to be done in order to find an optimal approach to extracting domains from a typical user input. In this chapter, we will explain the methodology employed to find out such an approach, as well as the tools that were created to reach this purpose.
@@ -7,7 +7,9 @@ Given the originality of the present project, research had to be done in order t
 \section{Methodology} % (fold)
 \label{sec:methodology}
 
-To get interesting results from this experiment, a formal methodology was needed. While it is quite simple, it provides us with great flexibility and with constant progress towards the goal of extracting domains from a simple request.
+To get interesting results from this experiment, a formal methodology was needed. While it is quite simple, it provides us with great flexibility and with constant progress towards the goal of extracting domains from a simple request. This project has two major phases, which shall be described further in details and of which an overview in available in figure~\ref{fig:methodology}. In the first phase, a corpus that responds to the needs of the project, that is, assembled of as many multi-domain queries as possible, has to created from scratch using publicly available data, as well as some manually-entered ones.
+
+In a second phase, from this larger corpus, a smaller but most interesting section is taken and analyzed in depth. Again this analysis has two aspects. The first one is to find a technique that will allow us to split a question in the diverse domains that constitute it, and extract the important objects from those parts. The second one is to take the resulting objects, and associate them with one or more semantical domain of knowledge that will be mapped to the corresponding services. For both these problems, various approaches will be developed and evaluated, individually and relatively to each other.
 
 \begin{figure}[ht!]
   \begin{center}
@@ -16,6 +18,10 @@ To get interesting results from this experiment, a formal methodology was needed
   \caption{High-level Methodology}\label{fig:methodology}
 \end{figure}
 
+% section methodology (end)
+
+\section{Creation of the corpus} % (fold)
+\label{sec:creation_of_the_corpus}
 
 \subsection{Data Extraction} % (fold)
 \label{sub:data_extraction}
@@ -34,6 +40,11 @@ Similarly, we focus our attention on the multi-domain questions, and this is thi
 This manual rating also presents an excellent opportunity for successive phases in which we can try to use the existing data as training data to try to see if we can automatically sort new entries in the good classification.
 
 % subsection entry_filtering_rating (end)
+
+% section creation_of_the_corpus (end)
+
+\section{Query Analysis} % (fold)
+\label{sec:query_analysis_spec}
 
 \subsection{Parsing} % (fold)
 \label{sub:parsing}
@@ -55,46 +66,7 @@ This manual rating also presents an excellent opportunity for successive phases 
 
 % subsection results_evaluation (end)
 
-% section methodology (end)
-
-\section{Tools} % (fold)
-\label{sec:tools}
-
-\subsection{External tools and libraries} % (fold)
-\label{sub:external_tools_and_libraries}
-
-JSON
-
-Stanford Parser
-
-Kestrel/Memcached
-
-HTTParty
-
-CouchDB
-
-Scala
-
-Ruby/Sinatra
-
-% subsection external_tools_and_libraries (end)
-
-\subsection{Architecture} % (fold)
-\label{sub:architecture}
-
-% subsection architecture (end)
-
-\subsection{Sift - Data Extraction \amper\ Rating} % (fold)
-\label{sub:sift_data_extraction_and_rating}
-
-% subsection sift_data_extraction_and_rating (end)
-
-\subsection{Bee - Distributed Background Processing} % (fold)
-\label{sub:bee_distributed_background_processing}
-
-% subsection bee_distributed_background_processing (end)
-
-% section tools (end)
+% section query_analysis_spec (end)
 
 \section{Data Models} % (fold)
 \label{sec:data_models}
