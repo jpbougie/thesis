@@ -9,13 +9,8 @@
   \caption{The High-level Architecture}\label{fig:architecture}
 \end{figure}
 
-
-
 \section{Tools} % (fold)
 \label{sec:tools}
-
-\subsection{External tools and libraries} % (fold)
-\label{sub:external_tools_and_libraries}
 
 While some tools have been created expressly for the context of this research, many off-the-shelf technologies, tools and libraries were used in order to enhance the result and facilitate the creation of the final result. It is important to note that all these tools are open and freely available to the public.
 
@@ -86,7 +81,7 @@ It is a pure object-oriented language, where every method or function is actuall
 
 Sinatra\footnote{See http://www.sinatrarb.com}\ is a next-generation Web Framework built in the Ruby language. its particularities are its extreme simplicity while still keeping most of the power of other frameworks, a simplicity that also offers a great flexibility. It is still firmly rooted within the realm of Model-View-Controller frameworks. While it doesn't specify anything about the models, it organizes the code around controllers who match some specified URL. Any given operation can be made within those blocks of code, and the only contract is that they are expected to return a string of characters that will be sent to the user. This string can be generated directly, or, as it is preferable, created from the rendering of a specified template that will abstract away the view part.
 
-Sinatra itself can be run on a number of application servers, which range from small, focused ones such as Thin \footnote{see www.thinserver.com TODO}\ or general Web servers such as Apache.
+Sinatra itself can be run on a number of application servers, which range from small, focused ones such as Thin \footnote{see code.macournoyer.com/thin}\ or general Web servers such as Apache.
 
 % paragraph sinatra (end)
 
@@ -108,25 +103,91 @@ It was chosen first and foremost because it offers access to the wide libary of 
 
 % paragraph scala (end)
 
-% subsection external_tools_and_libraries (end)
-
-\subsection{Architecture} % (fold)
-\label{sub:architecture}
-
-% subsection architecture (end)
-
-\subsection{Sift - Data Extraction \amper\ Rating} % (fold)
-\label{sub:sift_data_extraction_and_rating}
-
-% subsection sift_data_extraction_and_rating (end)
-
-\subsection{Bee - Distributed Background Processing} % (fold)
-\label{sub:bee_distributed_background_processing}
-
-% subsection bee_distributed_background_processing (end)
-
 % section tools (end)
 
+\section{Architecture} % (fold)
+\label{sec:architecture}
+
+The general framework that powers this research is linked around the two top-level tasks, that is the creation of the corpus, and the use of this corpus within the context of query analysis. In this fashion, the tool created to support these tasks must be flexible enough to accommodate both diverging needs that are centered around a single set of data.
+
+The center of it is thus the Web front-end that powers the creation of the corpus as well as provides a view into the results of the algorithms employed to analyze the queries and extract the domains. This front-end has a first communication with the outside through the use of the Yahoo! Answers Web service, where, on request of the user browsing the site, it requests additional entries from the Web service and shows the new entries to the server. To store and retrieve these entries, it communicates with the document database.
+
+Since the processing required to analyze the queries is non-negligible, both in terms of CPU usage as well as memory, it would be difficult to require the extraction and the analysis to be done in real time in the same environment as the database and the Web front-end. Thus, a mechanism to offload the work into another computer has been devised. Based on a standard and simple architecture for background workers, the Web front-end, or the user through the command line, can post work items on a queueing server where it will be picked up by one of the clients, the first one who is available to compute. The client then processes the task with the given input parameters, and stores the results back into the document database, which the Web front-end can then present to the user.
+
+% section architecture (end)
+
+\section{Sift - Data Extraction \amper\ Rating} % (fold)
+\label{sec:sift_data_extraction_and_rating}
+
+The Web front-end and the tool used to extract data from the Yahoo! Answers Web Service, nicknamed Sift, is a Web Application based on the Sinatra framework, and thus has been written in the Ruby programming language. In addition to the main Sinatra library for web application development, it imports the Ruby libraries used to interface with the CouchDB server, the Kestrel queue service as well as the Yahoo! Answers Web Service. The application is divided into three principal parts: the Models, the Controllers and the Views.
+
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics[width=\linewidth]{images/siftdatamodels}
+  \end{center}
+  \caption{Sift - Data Models}\label{fig:sift_data_models}
+\end{figure}
+
+There are two models in Sift, as one can see in Figure~\ref{fig:sift_data_models}. The first one corresponds to the entries that are stored in the document database. These entries contain the input data, either taken from Yahoo! Answers or entered manually. They also contain the rating given to the entry itself, as well as the evaluations of the individual strategies employed on the element. Creating or updating an entry within the confines of this tool automatically make it post a message to the queue server, if it is available, where the task can be picked up by the background worker.
+
+The second one corresponds to the result of a query made to the Yahoo! Answers website, before it is inserted in the document database where it becomes an Entry. It contains the fields of the content provided by the Yahoo! API, which, of interest to us, are the category identifier, the question identifier, the question title as well as the body.
+
+The controllers in Sift correspond to a series of functions that are called when a pattern matching a URL is matched. The most important method in this case is the one for the index page, where most of the work is done. Its basic task is to prepare the list of entries that are to be shown to the user. In order to do this, it takes a list of parameters fed by the user. These can include the number of items to show, the page to show, the ordering, a filtering by the rating given to an entry or the lack of it. Before explaining how the interface is then created from this list of entries, let us review the other methods available. The interface allows for the manual creation of an entry, for which a method is thus available. In a similar fashion, methods are exposed for the user to rate an entry, either as a whole, in the case of the extraction of the corpus, or for an specific feature, useful in the matter of the evaluation of the strategies.
+
+The last part is the view module, where a template is processed, taking as input the different variables prepared by the controller. In the case of the index page, where the list of entries is shown, the output HTML contains the list of all the entries, with each entry containing the results of the processing done if there was any, although this part is hidden at first.
+
+The interface is heavily inspired by Google Mail\footnote{See http://mail.google.com/}\ where a list of summaries is shown and can be navigated through, either using the mouse or the keyboard. Elements can be given a rating by clicking the corresponding star to the right of it. It is also possible to change the rating on more than one element at once by selecting them first and then using the drop-down action menu or the keyboard shortcuts to give it a new rating.
+
+Clicking a single entry will show the details for it if it has been processed by the background worker system, in which case, it is possible to see the alternative strategies and rate them individually.
+
+This interface was created using the jQuery toolkit for JavaScript, which allows a high-level view of the web page, allowing to query and manipulate elements, as well as make asynchronous calls to the servers, in a stable and consistent manner against all the browsers.
+
+% section sift_data_extraction_and_rating (end)
+
+\section{Bee - Distributed Background Processing} % (fold)
+\label{sec:bee_distributed_background_processing}
+
+\begin{table}
+  \caption{Execution Profile Data Model}
+  \label{tab:execution_profile}
+  
+  \begin{center}
+    \begin{tabular}{c | c}
+      Element & Type\\
+      \hline
+      Errors & List of Strings\\
+      Result & JSON value\\
+      Duration & Milliseconds\\
+      Version & String\\
+    \end{tabular}
+  \end{center}
+\end{table}
+
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics[width=\linewidth]{images/beeuml}
+  \end{center}
+  \caption{Bee - Class Diagram}\label{fig:beeuml}
+\end{figure}
+
+
+
+\begin{table}
+  \caption{The task interface}
+  \label{tab:task_interface}
+  
+  \begin{center}
+    \begin{tabular}{c | l}
+      Method & Description\\
+      \hline
+      setup(configuration) & Optionally implemented, provides a mean for the task to access its configuration, and use it to set itself up, for example by loading data dictionaries. This is only done once when the task is first loaded, so it is a good opportunity to cache things\\
+      identifier: string & This method returns the unique identifier of the task within the chain\\
+      run(inputParams): json & This is the core method of the task. It takes as input a Map of the input given to it from the queue as well as the results of the previous tasks in the chain, arranged according to their identifier. The output of the function should be a json value. Any exception thrown by this task will interrupt the chain and will be stored in the errors fields in the database.\\
+      version: string & Allows a task to report its version, forcing the re-computation of all the elements in a chain starting from this task.\\
+    \end{tabular}
+  \end{center}
+\end{table}
+% section bee_distributed_background_processing (end)
 
 
 \section{Data Gathering \amper\ Analysis} % (fold)
