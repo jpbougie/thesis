@@ -17,19 +17,96 @@
 \subsection{External tools and libraries} % (fold)
 \label{sub:external_tools_and_libraries}
 
-JSON
+While some tools have been created expressly for the context of this research, many off-the-shelf technologies, tools and libraries were used in order to enhance the result and facilitate the creation of the final result. It is important to note that all these tools are open and freely available to the public.
 
-Stanford Parser
+\paragraph{JavaScript Object Notation} % (fold)
+\label{par:javascript_object_notation}
 
-Kestrel/Memcached
+The Javascript Object Notation or JSON is a text-based data interchange format similar to XML. It is based on the Javascript syntax for describing data structures. It supports a variety of data structures, the most commonly used in high-level languages. These include the basic types of strings and numbers, as well as the compound data types of lists (or arrays) and dictionaries (also called maps). Here is an example of a JSON data structure.
 
-HTTParty
+\begin{verbatim}
+  {
+    "string": "a string",
+    "number": 10,
+    "list": ["a", 3, ["12", 12]],
+    "object": { "property": 12 }
+  }
+\end{verbatim}
 
-CouchDB
+It was chosen over other data exchange formats such as XML for its simplicity and readability. Of primordial importance was the ease in which it maps to the data types provided by most languages, which make it much more natural to convert back and forth. It also enjoys a good support over a multitude of languages and frameworks, libraries having been implemented in every high-level language available.
 
-Scala
+% paragraph javascript_object_notation (end)
 
-Ruby/Sinatra
+\paragraph{Stanford Parser} % (fold)
+\label{par:stanford_parser}
+
+The Stanford Parser is a Natural Language Processing suite of tools and libraries that can be used in various tasks related to natural language analysis. In the context of this research, it is used for its parsing abilities. It is based on a probabilistic model, where, aided by trained that, it returns the \emph{n}\ most probably parsings of the tree.
+
+It is implemented as a Java library accompanied by a dictionary file that is used as training data. While we use only the English corpus, others are available in German and Chinese.
+
+% paragraph stanford_parser (end)
+
+\paragraph{Kestrel} % (fold)
+\label{par:kestrel}
+
+To distribute work tasks amongst the worker, and to send it from the server where the manager of the workers can reach it, we use a queueing service known as Kestrel. While it is quite new, it has proven its worth through use at Twitter Inc.\footnote{See Twitter \amper\ kestrel}, where it powers a lot of the hugely-popular communication service. The particularity of this service is that it complies with the Memcached protocol. Memcached is the most widely-used service to store transient data and is used as a cache to avoid repeating costly operations. While it changes the semantics of this protocol, the fact that Kestrel respects the simple \emph{get} and \emph{set} contract of Memcached allows the use of a great number of libraries that, while originally made for Memcached itself, can now be used transparently to send tasks to the Kestrel server.
+
+Its basic semantics are that a \emph{set} operation associates a key, with a queue, and the payload given within the operation will be added to the end of that named queue. The \emph{get}\ operation instead takes the first element from that same named queue, or returns a special message if no element can be found.
+
+Kestrel itself is implemented as a daemon in Scala, a high-level language that takes most of its inspiration from Java and is in fact compiled to Java bytecode, allowing to run seamlessly in the Java Virtual Machine.
+
+% paragraph kestrel (end)
+
+\paragraph{CouchDB} % (fold)
+\label{par:couchdb}
+
+Used a data storage mechanism, CouchDB\footnote{See http://couchdb.apache.org/}\ is an Apache Foundation project for a document-based database server written in Erlang, a highly-efficient language for concurrent and distributed applications. It diverges itself from the model of relational databases in many ways, and offers a very different performance profile. CouchDB, as his description says, stores free-form documents instead of records as can be seen in a regular relational database. Its schemas are flexible, and the elements can change from one document to another in a same database. This makes many senses in many different applications, such as ones where schemas are highly likely to change over time, or in situations where the rows are very sparse, that is, many fields are present but only few are actually used in a single document.
+
+It uses JSON as its native data format, making it very flexible in terms of what data types can be stored. It also supports computed views, which replace indices, and which are created in JavaScript by the user. These views follow the Map/Reduce paradigm, where a first function is tasked with going over every document, emitting a key/value pair which can be any given JSON element. The second function, then sorts and groups elements by their keys, and transforms and reduces the array of values associated with that key into a singular atomic element. The contract is that the computation of one element is totally independent from the computation of any other, allowing the system to distribute the work, cache it aggressively and reorder it as needed in order to improve the performance.
+
+It also supports keeping multiple revisions of a single document, allowing the user to require a particular version. It also gives the opportunity to offer optimistic conflict resolution for updates, where, during an update operation, the sender is required to state which version its change is based on. If that version corresponds to the currently most up-to-date, the update is made without any trouble. In the other case, if another user had already updated the same document, an error message is sent to the user who is then given the opportunity to rebase himself on the latest version.
+
+Other interesting features of CouchDB are its core support for master-master replication, where two nodes can be synchronized and where both can still act as master, unlike the normal model master-slave model where slaves are only used for read operations while the master is the unique point of update.
+
+CouchDB was chosen within the context of this project with the idea that the schema was most likely to change greatly over the progress of the research, and that the objects that would needed to be stored would not fit a relational database very well. Examples of this include the result from the parse tree, which take the form of a very deep tree, or the set of objects for a single split domain.
+
+% paragraph couchdb (end)
+
+\paragraph{Ruby} % (fold)
+\label{par:ruby}
+
+Ruby is a high-level programming language known amongst aficionados as being highly dynamic and flexible in regards to its syntax. While its implementation is relatively slower than other languages', it has become famous for allowing the creation of DSL, Domain-Specific Languages, where the host language itself is adapted in order to create a more natural syntax adapted to the task at hand. In particular, it has become famous for its use in the Web domain, where it now sports a host of libraries adapted to quickly and efficiently creating Web Applications.
+
+It is a pure object-oriented language, where every method or function is actually activated by sending a message to the desired instance. Every element in the code can be considered as objects, even literal string and numbers. It follows in this the tradition of the Smalltalk chain of languages. It also allows the re-opening and modification of already-defined classes, even the ones that make part of the core and standard library.
+
+% paragraph ruby (end)
+
+\paragraph{Sinatra} % (fold)
+\label{par:sinatra}
+
+Sinatra\footnote{See http://www.sinatrarb.com}\ is a next-generation Web Framework built in the Ruby language. its particularities are its extreme simplicity while still keeping most of the power of other frameworks, a simplicity that also offers a great flexibility. It is still firmly rooted within the realm of Model-View-Controller frameworks. While it doesn't specify anything about the models, it organizes the code around controllers who match some specified URL. Any given operation can be made within those blocks of code, and the only contract is that they are expected to return a string of characters that will be sent to the user. This string can be generated directly, or, as it is preferable, created from the rendering of a specified template that will abstract away the view part.
+
+Sinatra itself can be run on a number of application servers, which range from small, focused ones such as Thin \footnote{see www.thinserver.com TODO}\ or general Web servers such as Apache.
+
+% paragraph sinatra (end)
+
+\paragraph{HTTParty} % (fold)
+\label{par:httparty}
+
+While fetching and parsing data from an external Web service can be made using low-level library, HTTParty makes it much easier. One simply has to specify the URL of the service as well as optional parameters, such as the developer key in the case of Yahoo! Answers, and HTTParty will take care of fetching the data and translating it in a native format of its host language, Ruby.
+
+% paragraph httparty (end)
+
+\paragraph{Scala} % (fold)
+\label{par:scala}
+
+Scala is a high-level language closely based on Java, but taking on the ideas of the latest generation of functional languages, such as Haskell or ML, and others from dynamic languages like Ruby. It was created in Switzerland in a project led by Martin Odersky, a lead designer on the Java language itself. Scala offers quasi-total compatibility with Java, being able to import and export libraries compiled in any language running on the Java Virtual Machine. In addition, while it sports a Java-like syntax, it supports type inferencing, allowing users to skip explicitly defining the type of each variable. In addition, it supports high-level functions, pattern matching and an evolution of interfaces and abstract classes called traits, inspired by Ruby mixins.
+
+Among its remarkable features can be found a library that offer a new perspective on concurrent systems, called actors. This feature, taken from languages such as Erlang and Smalltalk, allows one developer to conceptualize systems as a series of independent processes called actors, where these can communicate through the use of referentially-transparent messages.
+
+It was chosen first and foremost because it offers access to the wide libary of Java applications. It was also then chosen over Java itself because it is more suited to explorative programming, where one does not know exactly the shape the result will take, as was the case at the beginning of this project. Furthermore, its actors paradigm can easily be used to model the concept of worker tasks receiving orders as messages from an external service.
+
+% paragraph scala (end)
 
 % subsection external_tools_and_libraries (end)
 
