@@ -97,7 +97,22 @@ While fetching and parsing data from an external Web service can be made using l
 
 Scala is a high-level language closely based on Java, but taking on the ideas of the latest generation of functional languages, such as Haskell or ML, and others from dynamic languages like Ruby. It was created in Switzerland in a project led by Martin Odersky, a lead designer on the Java language itself. Scala offers quasi-total compatibility with Java, being able to import and export libraries compiled in any language running on the Java Virtual Machine. In addition, while it sports a Java-like syntax, it supports type inferencing, allowing users to skip explicitly defining the type of each variable. In addition, it supports high-level functions, pattern matching and an evolution of interfaces and abstract classes called traits, inspired by Ruby mixins.
 
-Among its remarkable features can be found a library that offer a new perspective on concurrent systems, called actors. This feature, taken from languages such as Erlang and Smalltalk, allows one developer to conceptualize systems as a series of independent processes called actors, where these can communicate through the use of referentially-transparent messages.
+Among its remarkable features can be found a library that offer a new perspective on concurrent systems, called actors. This feature, taken from languages such as Erlang and Smalltalk, allows one developer to conceptualize systems as a series of independent processes called actors, where these can communicate through the use of referentially-transparent messages. Actors are implemented using a mailbox, in fact a queue where messages are stored. The actor can then define its \emph{act}\ method to handle these messages, often using pattern matching to dispatch in view of the type of the message which can be arbitrary.
+
+An example of a simple actor which receives elements from the Message class and prints their content to the console follows.
+
+\begin{verbatim}
+  case class Message(payload: String)
+  class EchoActor extends Actor {
+    def act = {
+      loop {
+        react {
+          case Message(content) => Console.println("Received a message" + content)
+        }
+      }
+    }
+  }
+\end{verbatim}
 
 It was chosen first and foremost because it offers access to the wide libary of Java applications. It was also then chosen over Java itself because it is more suited to explorative programming, where one does not know exactly the shape the result will take, as was the case at the beginning of this project. Furthermore, its actors paradigm can easily be used to model the concept of worker tasks receiving orders as messages from an external service.
 
@@ -146,6 +161,131 @@ This interface was created using the jQuery toolkit for JavaScript, which allows
 
 \section{Bee - Distributed Background Processing} % (fold)
 \label{sec:bee_distributed_background_processing}
+
+The other major part of the tool chain created expressly for the subject of this research is the framework for background worker that is used to test query analysis and domain extraction strategies. It was decided to create such a system in order to be able to allow asynchronous processing, as well as being able to offload the main server. This system, nicknamed Bee, was created in Scala and uses libraries to convert to and from JSON, to access CouchDb as well as the Kestrel queue service. Refer to the Figure~\ref{fig:beeuml} for an overview of the classes that compose this framework.
+
+\paragraph{Tasks} % (fold)
+\label{par:tasks}
+
+The central concept in Bee is that of a task. A task is a single unit of work that is coded by the user of the library.  Tasks themselves are centered around one function, run, which takes as parameters the original input fed from the queue, as well as the results of the previous tasks. In turn, the tasks return the results of their calculations in the JSON format. These tasks are organized in chains, where each chain is given a unique identifier. It is the ultimate result of the chain that is stored back into the document database.
+
+% paragraph tasks (end)
+
+\paragraph{Execution Profile} % (fold)
+\label{par:execution_profile}
+
+The result of the execution of a single task in wrapped in a class called Execution Profile, which contains, in addition to the raw result, a list of errors or exceptions the task has encountered, the version of the task that was executed and, finally, the time it took for the task to be executed. You can refer to the table~\ref{tab:execution_profile} for a summary of the fields of the execution profile.
+
+% paragraph execution_profile (end)
+
+\paragraph{Workers} % (fold)
+\label{par:workers}
+
+Spawned at the number of one by defined chain, the workers take care of interacting with the queue service and overview the execution of the tasks in their chain. At the initialization, they are given a unique identifier, the name of the chain as defined in the configuration. They then setup every task before opening a connection on the queue, waiting for messages in the queue named by their identifier. Once a message is received, they first check into the database to see if this particular instance of the chain had already been executed. If that is the case, the existing data is fetched and parsed. The tasks will be skipped as long as no errors have been encountered and no version of a task has changed.
+
+Once all the remaining tasks have been executed, the worker asks the database actor to store the updated document before resuming listening on the queue.
+
+% paragraph workers (end)
+
+\paragraph{Splitting Tasks} % (fold)
+\label{par:splitting_tasks}
+
+Splitting Tasks are a specialization of the generic task, in which the parsing and serialization is already taken care of. The user only has to define a function, split, that will transform the input from a tree-based representation to a series of parts.
+
+Each part is an instance of a class composed of two fields, the first being the phrase, or sub-sentence that is considered as that part. The second element is the list of the objects retrieved from that phrase, where each object is a couple made of the object itself as well as its part of speech (e.g. \emph{verb}, \emph{noun}\ or \emph{adjective}).
+
+% paragraph splitting_tasks (end)
+
+\paragraph{Domain Extraction Tasks} % (fold)
+\label{par:domain_extraction_tasks}
+
+Domain extraction tasks are another kind of specialized task. They obviously correspond to the third phase of the query analysis process, where the different parts of a sentence are analyzed in order to obtain a series of domains that will eventually be mapped to different query services.
+
+Implementations of this interface once again have one single method to implement. This method, named extract, takes the list of parts obtained from the previous operation, and have to return, for each part of the sentence, a list of possible domains. Note that while there must be a list for every single part, that list can be empty if nothing of importance is found or if a word is not recognized.
+
+% paragraph domain_extraction_tasks (end)
+
+
+\paragraph{Hive - database access} % (fold)
+\label{par:hive_database_access}
+
+The class in charge of the access to the database, nicknamed Hive, responds to two simple message. The first one is a request to fetch the result of the execution of a chain from the database, given the name of the chain and the identifier of the original input, and replies to sender of the request with the resulting element. The second one is the opposite operation, that is, it takes the result of the chain in addition to its identifier and the identifier of the input, and stores it back into the database, possibly merging it with the existing data or the result of the execution of other chains.
+
+The hive was designed as an independent actor to allow the workers to quickly send a request and then move on to the execution of the next task. Given that the requests are put into a single mailbox implemented as a queue, it also allows the system to avoid problems of concurrent update if two workers executed different task chains on the same input element.
+
+% paragraph hive_database_access (end)
+
+\paragraph{Configuration} % (fold)
+\label{par:configuration}
+
+The Bee Framework can be configured using a file of the following format, which is given to the program at its launch. The configuration file is divided in four major sections.
+
+The first section allows the user to configure the connection to the queueing system, with the host and the port taken as parameters. The additional parameter, \emph{wait}, specifies an extension given by the kestrel protocol, where an attempted read on the queue can block it for a period of times, thus avoiding the overhead of constant polling.
+
+The second section works in a similar manner, but specifies the connection to the document database, allowing the parameters of the host, the port, as well as the name of the database.
+
+The most important configuration section is that of the chains, where a series of task chains can be defined. Each chain is made of a single element, \emph{chain}, which define a list of chains to be executed. Each atom in that list must then be defined, mandatorily giving the fully-qualified name of the class which contain the task to be executed. Optionally, additional parameters can be given, these will be passed to the task during the setup phase.
+
+Finally, the logging options can be adjusted in the final section, allowing to change the verbosity of the output and where it is redirected.
+
+\begin{verbatim}
+  <queue>
+    port = 22133
+    host = "jpbougie.net"
+    wait = 10 #time to wait for a message in the queue
+  </queue>
+
+  <couchdb>
+    host = "couch.jpbougie.net"
+    port = 80
+    database = "sift"
+  </couchdb>
+
+  <chains>
+    <stanford>
+      <parser>
+        class = "net.jpbougie.seco.StanfordParser"
+      </parser>
+
+      <flsplit>
+        class = "net.jpbougie.seco.FirstLevelSplit"
+      </flsplit>
+
+      <clausesplit>
+        class = "net.jpbougie.seco.ClauseSplit"
+      </clausesplit>
+
+      <fldomains>
+        class = "net.jpbougie.seco.WordnetDomains"
+        apply_to = "firstlevelsplit"
+        domains_file = "/Users/jp/Projects/Thesis/wn-domains-3.2/wn-domains-3.2-20070223"
+        wordnet_dir = "/Users/jp/Projects/Thesis/WordNet-2.0/dict"
+      </fldomains>
+
+      <cldomains>
+        class = "net.jpbougie.seco.WordnetDomains"
+        apply_to = "clausesplit"
+        domains_file = "/Users/jp/Projects/Thesis/wn-domains-3.2/wn-domains-3.2-20070223"
+        wordnet_dir = "/Users/jp/Projects/Thesis/WordNet-2.0/dict"
+      </cldomains>
+
+      <stats>
+        class = "net.jpbougie.seco.ParseStats"
+      </stats>
+
+      chain = ["parser", "flsplit", "clausesplit", "fldomains", "cldomains", "stats"]
+    </stanford>
+
+  </chains>
+
+  <log>
+    level = "info"
+  </log>
+<\end>
+
+\end{verbatim}
+
+% paragraph configuration (end)
 
 \begin{table}
   \caption{Execution Profile Data Model}
