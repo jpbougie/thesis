@@ -2,7 +2,7 @@
 \chapter{Implementation} % (fold)
 \label{cha:implementation}
 
-\begin{figure}[ht!]
+\begin{figure}[h]
   \begin{center}
     \includegraphics[width=\linewidth]{images/architecture}
   \end{center}
@@ -167,7 +167,7 @@ The other major part of the tool chain created expressly for the subject of this
 \paragraph{Tasks} % (fold)
 \label{par:tasks}
 
-The central concept in Bee is that of a task. A task is a single unit of work that is coded by the user of the library.  Tasks themselves are centered around one function, run, which takes as parameters the original input fed from the queue, as well as the results of the previous tasks. In turn, the tasks return the results of their calculations in the JSON format. These tasks are organized in chains, where each chain is given a unique identifier. It is the ultimate result of the chain that is stored back into the document database.
+The central concept in Bee is that of a task. A task is a single unit of work that is coded by the user of the library.  Tasks themselves are centered around one function, run, which takes as parameters the original input fed from the queue, as well as the results of the previous tasks. In turn, the tasks return the results of their calculations in the JSON format. These tasks are organized in chains, where each chain is given a unique identifier. It is the ultimate result of the chain that is stored back into the document database. Table~\ref{tab:task_interface} presents an overview of the methods of the Task interface.
 
 % paragraph tasks (end)
 
@@ -328,6 +328,132 @@ Finally, the logging options can be adjusted in the final section, allowing to c
   \end{center}
 \end{table}
 % section bee_distributed_background_processing (end)
+
+\section{Parsing Strategies} % (fold)
+\label{sec:parsing_strategies}
+
+Once the framework has been established and stabilized, it was possible to start implementing the various strategies under the form of tasks. The first of these were obviously the parsing strategies, which take as input the natural language sentence and render explicit the grammatical structure.
+
+\subsection{Tree Representation} % (fold)
+\label{sub:tree_representation}
+
+The output of such a process will take the form of an arbitrarily-deep tree, where a leaf represents an atom, a word in the sentence, while an internal node will represent a grouping of these words in some structure, for example in a noun phrase or verb phrase. Each node is also annotated with an optional score given by the parser for that particular sub-structure.
+
+% subsection tree_representation (end)
+
+\subsection{Stanford Parser} % (fold)
+\label{sub:stanford_parser_impl}
+
+The first parser to be evaluated was the Stanford Natural Language Parser. Distributed as a Java library, it requires little code to use. One simply needs to load the parser with the chosen training data file, and then apply the parser to a sentence to get a resulting tree. This tree is then transformed in order to take it from the native tree representation of the Stanford Parser into a generic one that is to be used by the later tasks. Here is an example on how to load and apply the parser, in Scala.
+
+\begin{verbatim}
+  // dataFile points to the training data set on the hard drie
+  // input contains the natural language sentence
+  
+  import edu.stanford.nlp.parsers._
+  
+  val parser = new LexicalizedParser(dataFile)
+  val tree = parser.apply(input)
+  
+\end{verbatim}
+
+% paragraph tree (end)
+
+% subsection stanford_parser (end)
+
+\subsection{Shallow Parser} % (fold)
+\label{sub:shallow_parser}
+
+The Shallow Parser, developed at the University of Illinois at Urbana-Champaign, takes a different approach to obtaining the final result. It works by using a series of different tools that will process the input into a more and more complex form, as you can refer in Figure~\ref{fig:shallow_parser_flow}. The first of these steps is to sanitize the input, make sure that every element is well tokenized; that is, every element in the sentence is spaced out, even the punctuation. It also produces some slight transformations and normalization operations.
+
+The output of this first operation is then sent to a second program, which takes care of tagging each element of the sentence with its most probable part of speech, be it noun, verb, adjective or other. This is then finally sent to a server called the \emph{chunking server}, which takes the annotated input and groups, or chunks, elements into what it thinks are the primordial structure of the sentence.
+
+The \emph{shallow}\ name thus comes from the fact that this grouping operation is only done at one level, which means that the output could be formally defined as a sequence of elements which can either be atoms, or sub-sequences of such atoms. This output, given as text by the server, is then parsed by the task and put into a tree representation, although it is only going to be one level deep.
+
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics[width=\linewidth]{images/shallowparserflow}
+  \end{center}
+  \caption{Shallow Parser - Data Flow}\label{fig:shallow_parser_flow}
+\end{figure}
+
+% subsection shallow_parser (end)
+
+% section parsing_strategies (end)
+
+\section{Sentence Splitting Strategies} % (fold)
+\label{sec:sentence_splitting_strategies}
+
+\subsection{From Tree to Parts} % (fold)
+\label{sub:from_tree_to_parts}
+
+Once we have a tree that suitable to use for parsing, we can proceed to the division of that structure into many parts, with the expectation that each part will correspond to a single domain of query.
+
+The data structures that form the contract of that operation are thus two-fold; a first one, seen previously, is the tree resulting from the parsing operation. In output instead, each part of the sentence is to be represented by an instance of the part class, which contains the extracted sub-sentence as well as, taken from that, the objects that are considered important to the definition of the domain.
+
+% subsection from_tree_to_parts (end)
+
+\subsection{First-Level Split} % (fold)
+\label{sub:first_level_split}
+
+A first strategy to split the sentences is to suppose that the first level at which a separation of the sentence occurs defines the various domains. The purpose of the task is thus to find the first internal node that has more than one child, and take each child as a different domain. From each sub-tree, we look for interesting elements, nouns and verb atoms and take them as the object.
+
+While this first attempt at splitting the tree is simple and does not take into account the subtleties of the resulting parse tree, it gives a good base line and provides a jumping point from which we can devise better techniques.
+
+% subsection first_level_split (end)
+
+\subsection{Clauses Extraction} % (fold)
+\label{sub:clauses_extraction}
+
+Given the fact that sentences are most of the time organized in subject-verb-object form, and that the object is often the one that has the most chances of having a subjunctive or relative clause, we can expect the tree to be leaning most of the time on the right, a fact that the previous technique will not take into account.
+
+In order to remediate that, a second technique has been implemented, where the tree is visited in a depth-first, left-to-right manner, buffering elements in a domain until a new clause is encountered. Such a clause is encountered when we find an internal node which bears one of the following label: S, SQ, SBAR, SBARQ, FRAG (refer to Table~\ref{tab:penntree_symbols} for an overview of the symbols and to Section~\ref{sec:query_analysis} for an in-depth explanation).
+
+From each buffered part, we then take all the leaves and filter out the ones that are neither nouns nor verbs, and send those as the resulting objects.
+
+% subsection clauses_extraction (end)
+
+% section sentence_splitting_strategies (end)
+
+\section{Domain Extraction Strategies} % (fold)
+\label{sec:domain_extraction_strategies}
+
+Following the extraction of the parts of the sentences that correspond to domains, it is time to extract the actual domains from them. In order to do that, we use external bases of data, mostly centered around the tools provided by WordNet.
+
+\subsection{Parsing WordNet} % (fold)
+\label{sub:parsing_wordnet}
+
+Given a lack of a library that was both stable and gave use internal access to the unique identifier of the synonym sets of WordNet, the work of parsing the WordNet database file had to be done within our task. Thankfully, WordNet is organized around text files, where each entry span exactly one line. For each part of the speech (noun, verb, etc.), two files are given: the first one is an index where the key is the word we are looking for, and for which the values are a list of offsets within the other file, the database, corresponding each to one different signification or sense of the word.
+
+This second file further contains, for each signification, a definition and an example use. In addition, it contains the relationships between the different synsets.
+
+Another important part of WordNet is the normalization of the words stored in the index. All of them are stored in their singular, lowercase format. The different words in a collocation are also separated by the underscore character.
+
+To transform a word into a singular or infinitive form, a list of common transformations is given and tried until a match is found. A third file also lists exceptional cases, for example irregular verbs (e.g. \emph{are}\ will point to \emph{be}).
+
+Instead, the WordNet Domains database takes form of another index, where there, the keys correspond to the offsets of the synsets within the WordNet Database. The values are there a space-separated list of the different domains the synset take part in, in order of importance. These domains are taken from the DEWEY system.
+
+% subsection parsing_wordnet (end)
+
+\subsection{WordNet Domains with tf-idf} % (fold)
+\label{sub:wordnet_domains_with_tf_idf}
+
+Given the access to the WordNet Database, we can now use the objects found within the previous phase to find out the domains to which they relate. In order to do this, we take each object, normalize it and look for all its senses within WordNet. Given each unique sense, we then find out all the domains written within the WordNet Domains file. This gives us, for a single part of sentence, a wealth of domains, not all of which present the same amount of information, given that some are very generic.
+
+In order to present the most important ones, we use the information retrieval technique known as tf-idf\footnote{See http://en.wikipedia.org/wiki/tf-idf}. This technique allows us to calculate how much information carries a word within a set of document. It has two principal components. The Inverse Document Frequency, or idf, takes into account that a word that is very common within is a whole collection does not give much information, as it lacks uniqueness. So points are removed from a word if it appears in too many documents. On the other hand, a word is considered as important to a document the more times it appears it, which the tf or Total Frequency indicator purports to calculate.
+
+These two results are combined to give a final score to each unique word within the part of the sentence, which we then use to order the results, starting from the highest score.
+
+% subsection wordnet_domains_with_tf_idf (end)
+
+\subsection{WordNet Topics} % (fold)
+\label{sub:wordnet_topics}
+
+Another source of data we can make use of is that of the special relationship within WordNet itself that corresponds to the semantic \emph{topic}. This relationship groups synsets under a limited amount of other words which are then considered as topics, and thus as domains we wish to extract.
+
+% subsection wordnet_topics (end)
+
+% section domain_extraction_strategies (end)
 
 
 \section{Data Gathering \amper\ Analysis} % (fold)
