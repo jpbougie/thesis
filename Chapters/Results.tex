@@ -4,7 +4,39 @@
 \section{Creation of the corpus} % (fold)
 \label{sec:creation_of_the_corpus_results}
 
+\subsection{Quantities} % (fold)
+\label{sub:quantities}
+
+% subsection quantities (end)
+
+\subsection{Repartition of the ratings} % (fold)
+\label{sub:repartition_of_the_ratings}
+
+% subsection repartition_of_the_ratings (end)
+
+\subsection{Interesting Elements} % (fold)
+\label{sub:interesting_elements}
+
+% subsection interesting_elements (end)
+
 % section creation_of_the_corpus_results (end)
 
+\section{Extraction of the domain} % (fold)
+\label{sec:extraction_of_the_domain}
+
+\subsection{Choice of the parser} % (fold)
+\label{sub:choice_of_the_parser}
+
+We first began by evaluating the two proposed parsers, the Stanford Parser and the Shallow Parser, over the set of accumulated data. We evaluated them over the quality of the results as well as the performance in terms of CPU usage and memory.
+
+Given the relative simplicity of the results given by the Shallow Parser, one might expect it to be much easier to calculate, and be much simpler to use. In fact, what we have found out is that in general, parsing an element using the shallow parser takes as much as three times longer than doing the same with the Stanford parser. This can be explained by the fact that this parser requires a series of tool to be called sequentially, loosing a lot of time in the overhead of passing the elements from one program to another. On the other hand, the stanford is a unique Java library where everything is loaded from the start, before any requests are actually made.
+
+The results given by the Stanford parser were also obviously more finer, as the shallow parser only does a coarse grouping. It was also less reliable, frequently returning no results because the input was not given in a proper english, a situation where the Stanford parser still managed to make an intelligible parsing.
+
+It was thus very easy for us to choose to continue solely with the Stanford parser, both because of the quality of its results and its performance.
+
+% subsection choice_of_the_parser (end)
+
+% section extraction_of_the_domain (end)
 
 % chapter results (end)
