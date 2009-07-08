@@ -1,4 +1,45 @@
+%!TEX root = /Users/jp/Thesis/Thesis.tex
 \chapter{Conclusion} % (fold)
 \label{cha:conclusion}
+
+What characterizes the most this project has been the multi-facetted and constructive approach taken, which we can explain by the need for the elaboration of a corpus of data that satisfies our need, and the assembly of a set of tools that power the evaluation of the results. In fact, while interesting results have been uncovered and progress has been made in the search for analysis in a multi-domain query, what leaves the strongest impression are the tools that will act as a foundation for future work, allowing the next research to progress efficiently in the same direction, and also to develop new research that follow the same framework.
+
+What we presented in this work is thus not only a set of data that we can base ourselves on, or an algorithm that splits queries in their diverse domains, but also the whole environment in which the present results were built.
+
+The building blocks, as we might call them, were, on one hand, a Web application that allows easy and continuous extraction and evaluation of external data sets. The tool is simple but highly effective and allows for an efficient use, which is a requirement when one is to process a great amount of data. It also proves flexible and can be quickly adapted for other situations.
+
+The second tool that was built is a focused tool for offloading long or costly processes off to another machine where it can be run asynchronously. While other solutions exist for that purpose, they usually are usually highly complex. This one, evolved from the basic needs, proves simple to use, and, as has been shown throughout this project, is simple to write in and caters to diverse needs.
+
+\section{Future Work} % (fold)
+\label{sec:future_work}
+
+If progress has been made in the field, the work is still far from being completed. Apart from an engineering-oriented approach to the solution of domain splitting, there are many opportunities to enhance the results and provide new ways to extract the domains from queries.
+
+\subsection{Optimization} % (fold)
+\label{sub:optimization}
+
+What we have given throughout this project is an purified, quite abstract form of the algorithms that could be used as a means of extracting domains from a multi-domain query. While they produce interesting results, many edge cases were not considered, and many improvements to the effectiveness of the program could be made by analyzing a bigger corpus of data.
+
+As an example, some learning strategies could be used for the software to evolve over time by remembering about previous searches from the users. Corrections to commonly mistaken words could be done, and the parser could be tuned by training it on the real data.
+
+% subsection optimization (end)
+
+\subsection{Typed Dependencies} % (fold)
+\label{sub:typed_dependencies}
+
+While the core tool provided by the Stanford Parser is the parse tree that we have seen and used throughout this project, other tools are at our disposition to use. One such tool is called the Typed Dependencies representations. Instead of returning a tree, this parser returns a series of typed connections between the words in the sentence. The type of the connection depend on the relationship between the elements, so in the part \emph{the article}, we would have a relationship of the type \emph{determiner} between \emph{the} and \emph{article}. Done over a whole sentence, this creates an annotated graph.
+
+We could then analyze this graph and see its properties in order to find out if its shape bears any relation to the domains of the query. We could do this both in a competitive mode with the tree variant, or cooperatively, using the sum of the two bases of knowledge about the sentence to get a better heuristic.
+
+% subsection typed_dependencies (end)
+
+\subsection{Feedback from the domain framework} % (fold)
+\label{sub:feedback_from_the_domain_framework}
+
+In the context of this research, we considered the Query Analysis as a completely independent component from the infrastructure of SeCo. But in reality, it will be one of many different parts that are allowed to communicate. One particularly interesting component will be the domain framework, which contains a base of knowledge about the domains it can query. Within that base, it is planned  that it keeps a set of words related to that domain, or, in some cases an complete ontology. We could thus use that ontology in order to direct the division and the extraction of the domains from the queries
+
+% subsection feedback_from_the_domain_framework (end)
+
+% section future_work (end)
 
 % chapter conclusion (end)

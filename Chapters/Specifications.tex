@@ -7,7 +7,7 @@ Given the originality of the present project, research had to be done in order t
 \section{Methodology} % (fold)
 \label{sec:methodology}
 
-To get interesting results from this experiment, a formal methodology was needed. While it is quite simple, it provides us with great flexibility and with constant progress towards the goal of extracting domains from a simple request. This project has two major phases, which shall be described further in details and of which an overview in available in figure~\ref{fig:methodology}. In the first phase, a corpus that responds to the needs of the project, that is, assembled of as many multi-domain queries as possible, has to created from scratch using publicly available data, as well as some manually-entered ones.
+This project has two major phases, which shall be described further in details and of which an overview in available in figure~\ref{fig:methodology}. In the first phase, a corpus that responds to the needs of the project, that is, assembled of as many multi-domain queries as possible, has to created from scratch using publicly available data, as well as some manually-entered ones.
 
 In a second phase, from this larger corpus, a smaller but most interesting section is taken and analyzed in depth. Again this analysis has two aspects. The first one is to find a technique that will allow us to split a question in the diverse domains that constitute it, and extract the important objects from those parts. The second one is to take the resulting objects, and associate them with one or more semantical domain of knowledge that will be mapped to the corresponding services. For both these problems, various approaches will be developed and evaluated, individually and relatively to each other.
 
@@ -90,9 +90,9 @@ While splitting a sentence into different parts is an important step towards get
 
 From these basic objects, nouns and verbs, we can use another set of tools and techniques to extract a meaningful domain out of it, a domain that can be mapped to a web service later using other components of SeCo. In order to do this, we focus on the tools provided by the WordNet project, and especially the add-on of WordNet Domains.
 
-The technique we use is to parse the dictionary of WordNet, which is organized by words who relate to one or more synonym sets or senses of a word, also called synsets. Each synset has a unique identifier consisting of its offset within the WordNet database. This identifier can be used to connect to its associated domains within the WordNet-Domains database, where the key is the synset offset and its values are one or more domains. Refer to Figure~\ref{fig:wordnethierarchy} to see the relationships we follow to get the domains. As it can be seen, this results in a large number of domains from a single word. In order to get the most relevant domains, we use the tf-idf information retrieval technique \footnote{See http://en.wikipedia.org/wiki/tf-idf} as a sorting mechanism, calculating the importance of a single domain by its relative presence in a single word over how common it is across all the domains we retrieved from the objects of the part.
+The technique we use is to parse the dictionary of WordNet, which is organized by words who relate to one or more synonym sets or senses of a word, also called synsets. Each synset has a unique identifier consisting of its offset within the WordNet database. This identifier can be used to connect to its associated domains within the WordNet-Domains database, where the key is the synset offset and its values are one or more domains. Refer to Figure~\ref{fig:wordnethierarchy} to see the relationships we follow to get the domains. As it can be seen, this results in a large number of domains from a single word. In order to get the most relevant domains, we use the tf-idf information retrieval technique\cite{Jones72astatistical}\ as a sorting mechanism, calculating the importance of a single domain by its relative presence in a single word over how common it is across all the domains we retrieved from the objects of the part.
 
-A second technique we use is to retrieve the \emph{topic} relationship directly from WordNet, which gives a word definition a relationship to another word of which it is the topic. In order to do this, we need to go into the WordNet database and extract the interesting entries, following the offset links as they come.
+A second technique we use is to retrieve the \emph{Domain} relationship directly from WordNet, which gives a word definition a relationship to another word of which it is the topic. WordNet is organized as an index of words to their possible senses, and a database containing details about such senses. In particular, information about the relationship between the current senses and others is kept in that file. There are many kind of relationships, such as \emph{is-a}, \emph{is-part-of} or, as we wish to extract, \emph{is-member-of-this-domain}. These relationships allow one to go from sense, or \emph{synset}, to sense, forming a graph spanning the whole of the database.
 
 \begin{figure}[ht!]
   \begin{center}
@@ -105,22 +105,25 @@ A second technique we use is to retrieve the \emph{topic} relationship directly 
 
 % section query_analysis_spec (end)
 
-\section{Data Models} % (fold)
+\section{Query Analysis Data Models \amper Interfaces in SeCo} % (fold)
 \label{sec:data_models}
+
+While our research is based on the original goals of of the Search Computing project, that is, answering queries than span multiple domains, it is actually independent from the Politecnico di Milano project. Nevertheless, we include here an explanation of the workings of the Query Analysis component within Search Computing with the objective of keeping in mind the desired target that we are looking to reach through this research.
+
 Different data models are used in the components, both internally and externally. The ones interesting for this research correspond to the ones that will be given as inputs and outputs to the different components and that will allow us to interact with those components.
 
 The Query Analysis component will require two data models; The high-level query is its main input, while it outputs principally an abstract low-level query. The Query-to-domain Mapper will take that abstract query, and replace it with a concrete low-level query. The Domain Framework will make use of the additional data model that is the Domain Descriptor.
 
-\subsection{High-level Query} % (fold)
-\label{sub:high_level_query}
+\subsection{Data Models} % (fold)
+\label{sub:data_models_seco}
 
+
+\paragraph{High-level Query} % (fold)
 A high-level query is given as input to the query analysis, and is for the most part the direct input of the user. It will be given in the form of a quasi-natural question. It can optionally be augmented with some hints that will be in the form of Google Search's keywords, such as "ranking: temperature" or "domain: conference". Internally, this high-level query will be taken as a single string of arbitrary length.
 
 % subsection high_level_query (end)
 
-\subsection{Low-level Query} % (fold)
-\label{sub:low_level_query}
-
+\paragraph{Low-level Query} % (fold)
 A low-level query, either in the abstract or concrete form, will be given in a datalog-like format, that is, as a set of logical predicates describing the properties of diverse objects. These predicates will allow the use of constants, which will define restrictions on the properties of the desired outputs, as well as variables, which will roughly be in a similar amount to the number of different domains that can be extracted from the query. Extensions to the format include complex boolean logic, as well as special predicates that will control the ranking.  Following is an example low-level query, where an uppercase symbol denote a variable and a lowercase one a constant. The associated high-level query for this would be "Give me a conference about computer science in a country where the average temperature is higher than 20 degrees".
 
 \begin{verbatim}
@@ -150,23 +153,23 @@ It is important to note the difference between the type of the object and its do
 
 % subsection low_level_query (end)
 
-\subsection{Domain} % (fold)
+\paragraph{Domain} % (fold)
 \label{sub:domain}
 
-For the purposes of our research, a domain will be simply considered as a mapping between a unique name (eg. Event) and a series of keywords organized either as a simple bag, as an ontology or a taxonomy. It will also contain the different services that can be used to answer a query that corresponds to the selected domain.
+For the purposes of our research, a domain will be simply considered as a mapping between a unique name (e.g. Event) and a series of keywords organized either as a simple bag, as an ontology or a taxonomy (e.g. Conference). It will also contain the different services that can be used to answer a query that corresponds to the selected domain.
 % subsection domain (end)
 
-% section data_models (end)
+% subsection data_models (end)
 
-\section{Interfaces} % (fold)
-\label{sec:interfaces}
+\subsection{Interfaces} % (fold)
+\label{sub:interfaces}
 
 While the components are organized in a chain corresponding to the flow of information in the system, they will be mostly independent from one another, that is, the components will not call directly their successor to continue the execution. Instead, they will be organized in a service fashion, where they will only respond to a request by sending back a response to the client. The client in the main case will be an orchestrator that will take into account each component, calling them in turn and validating the output after each step, taking care of error and exception checking, as well as interaction with the end user through an HTTP or graphical interface.
 
 Thus, each component will be defined individually in regards to its external interface, although one component might make use of another component internally (for example, the Query-to-Domain Mapper will use the Domain Framework).
 
-\subsection{Query Analysis} % (fold)
-\label{sub:query_analysis_dm}
+\paragraph{Query Analysis} % (fold)
+\label{par:query_analysis_dm}
 
 The query analysis will respond to a very simple interface. It consists of one method that takes a high-level query as given by a user and outputs a series of abstract low-level queries as presented earlier. These low-level queries will be wrapped in a result object that allow the component to give additional information such as the things it ignored or could not understand, the errors it encountered, which might be useful to help the user refine its search.
 
@@ -177,8 +180,8 @@ The query analysis will respond to a very simple interface. It consists of one m
 
 % subsection query_analysis_dm (end)
 
-\subsection{Query to Domain Mapper} % (fold)
-\label{sub:query_to_domain_mapper_int}
+\paragraph{Query to Domain Mapper} % (fold)
+\label{par:query_to_domain_mapper_int}
 
 The query to domain mapper will also follow a simple contract, that is, of taking the abstract low-level queries given directly or transformed from a high-level query through the query analysis, and making them concrete, that is associating the domain and the web service to call to each individual low-level query.
 
@@ -188,8 +191,8 @@ The query to domain mapper will also follow a simple contract, that is, of takin
 
 % subsection query_to_domain_mapper_int (end)
 
-\subsection{Domain Framework} % (fold)
-\label{sub:domain_framework}
+\paragraph{Domain Framework} % (fold)
+\label{par:domain_framework}
 
 For the purpose of this thesis, the only interfaces that will be needed to use the domain framework will be the ones that allow us to associate a domain from a query object, as well as the one that will help us find a service from a pre-selected domain. To obtain the domain, we will want to give the framework the object we consider at the center of the domain query (eg. \emph{conference}\ in ``give me a conference about computer science...''), as well as the sentence fragment to help the framework disambiguate on certain cases. It will return the most likely domain associated with that object, or None if it can't find anything that could be used.
 
@@ -207,6 +210,6 @@ The second interface takes the domain and the queries and will return the best s
 
 % subsection domain_framework (end)
 
-% section interfaces (end)
+% subsection interfaces (end)
 
 % chapter specifications (end)

@@ -4,18 +4,21 @@
 \section{Creation of the corpus} % (fold)
 \label{sec:creation_of_the_corpus_results}
 
-\subsection{Quantities} % (fold)
-\label{sub:quantities}
+As explained in the earlier chapters, the goal of the project was two-fold: first, at the realization of the lack of a comprehensive corpus of data that could directly be used for the needs of a project, its creation was deemed necessary, and secondly, basing ourselves on that corpus, different techniques for analyzing and extracting domains could be tried and evaluated.
 
-% subsection quantities (end)
+We thus analyzed, over a period of time, a series of entries from Yahoo! Answers, which, once imported into the system, were found to present a sizable corpus.
 
-\subsection{Repartition of the ratings} % (fold)
-\label{sub:repartition_of_the_ratings}
+\subsection{Distribution of the ratings} % (fold)
+\label{sub:distribution_of_the_ratings}
 
-% subsection repartition_of_the_ratings (end)
+Sadly, most of the entries from Yahoo! Answers were not either of low value or not corresponding at all to our needs. We had to do a drastic pruning of the data set in order to get queries that were actually intelligible or corresponding to something that might be asked to a search engine. Furthermore, questions spanning more than one domain were even harder to find, and this is why they are in such small quantity.
+
+% subsection distribution_of_the_ratings (end)
 
 \subsection{Interesting Elements} % (fold)
 \label{sub:interesting_elements}
+
+Out of the thousands of elements we created, we highlighted the most interesting one by giving them a five-star rating. These hundred elements represent exactly the kind of problems we are looking to solve in the future, and the kind of questions that the SeCo project wants answered.
 
 % subsection interesting_elements (end)
 
@@ -36,6 +39,19 @@ The results given by the Stanford parser were also obviously more finer, as the 
 It was thus very easy for us to choose to continue solely with the Stanford parser, both because of the quality of its results and its performance.
 
 % subsection choice_of_the_parser (end)
+
+\subsection{Splitting Strategies} % (fold)
+\label{sub:splitting_strategies}
+
+While, in some simpler cases, the first-level split actually manages to divide the elements into different domains, most of the time, it returns a wrong result, mostly due to the presence of punctuation and the separation of the question word, such as \emph{where}, \emph{who} or \emph{what}\, who are separated into a different sub-tree. This throws off the first-level split algorithm, but they are completely ignored by the clause parser. Thus, it is easy to see that comparatively, the clause parser is a much finer alternative. On itself, it presents good results, considering more than XX\% of the elements are successfully split into their respective domains.
+
+% subsection splitting_strategies (end)
+
+\subsection{Domain Extraction} % (fold)
+\label{sub:domain_extraction}
+
+
+% subsection domain_extraction (end)
 
 % section extraction_of_the_domain (end)
 
