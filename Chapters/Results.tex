@@ -15,7 +15,7 @@ Sadly, most of the entries from Yahoo! Answers were not either of low value or n
 
 \begin{figure}[ht!]
   \begin{center}
-    \includegraphics[width=\linewidth]{images/entriesdistribution}
+    \includegraphics{images/entriesdistribution}
   \end{center}
   \caption{Distribution of the entries according to their rating}\label{fig:entries_distribution}
 \end{figure}
@@ -58,7 +58,14 @@ It was thus very easy for us to choose to continue solely with the Stanford pars
 \subsection{Splitting Strategies} % (fold)
 \label{sub:splitting_strategies}
 
-While, in some simpler cases, the first-level split actually manages to divide the elements into different domains, most of the time, it returns a wrong result, mostly due to the presence of punctuation and the separation of the question word, such as \emph{where}, \emph{who} or \emph{what}\, who are separated into a different sub-tree. This throws off the first-level split algorithm, but they are completely ignored by the clause parser. Thus, it is easy to see that comparatively, the clause parser is a much finer alternative. On itself, it presents good results, considering more than 75\% of the elements are successfully split into their respective domains.
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics{images/frequencydomains}
+  \end{center}
+  \caption{Number of domains in an entry by frequency}\label{fig:frequency_domains}
+\end{figure}
+
+While, in some simpler cases, the first-level split actually manages to divide the elements into different domains, most of the time, it returns a wrong result, mostly due to the presence of punctuation and the separation of the question word, such as \emph{where}, \emph{who} or \emph{what}\, who are separated into a different sub-tree. This throws off the first-level split algorithm, but they are completely ignored by the clause parser. Thus, it is easy to see that comparatively, the clause parser is a much finer alternative. On itself, it presents good results, considering that an average of slightly more than two domains are found within an entry. The distribution of the frequencies can be found in Figure~\ref{fig:frequency_domains}.
 
 % subsection splitting_strategies (end)
 
@@ -67,7 +74,7 @@ While, in some simpler cases, the first-level split actually manages to divide t
 
 In the domain extraction case, we also have implemented and evaluated two strategies. One depends on the WordNet domains file, which contain, for each word in the WordNet database, its association to one or more domain from the DEWEY index. The other, which will call WordNet topics, depends on a special relationship that is given between words  directly within the WordNet database.
 
-In terms of results, the first approach gives interesting results, although they usually include far too many generic results, gotten from the secondary senses. In particular, while it is often low because of its presence, \emph{factotum}\ appears in almost every single answer. On the other hand, all the words searched contained at least one or more domains that were fitting with the research results, making it a very viable alternative.
+In terms of results, the first approach gives interesting results, although they usually include far too many generic results, gotten from the secondary senses. In particular, while it is often low because of its presence, \emph{factotum}\ appears in almost every single answer. On the other hand, all the words searched contained at least one or more domains that were fitting with the research results, making it a very viable alternative. In terms of data, we can say that on average, nine elements are found within each domain, ensuring that at least a few of those will be recognized by the domain framework of the Search Computing project. In general, at least one or two represent the correct domain that make part of the sentence.
 
 While the domains approach had the problem of giving too many results, the approach based on the included WordNet topics has the opposite one, in that few words are actually tagged with their category. It makes it a poor solution, as in very few cases, it gave a fitting answer. The answers are usually completely absent, or in the few cases where there are any results, they take a completely different meaning of the word.
 

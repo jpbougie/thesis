@@ -44,7 +44,7 @@ It is implemented as a Java library accompanied by a dictionary file that is use
 \paragraph{Kestrel} % (fold)
 \label{par:kestrel}
 
-To distribute work tasks amongst the worker, and to send it from the server where the manager of the workers can reach it, we use a queueing service known as Kestrel. While it is quite new, it has proven its worth through use at Twitter Inc.\footnote{See Twitter \amper\ kestrel}, where it powers a lot of the hugely-popular communication service. The particularity of this service is that it complies with the Memcached protocol. Memcached is the most widely-used service to store transient data and is used as a cache to avoid repeating costly operations. While it changes the semantics of this protocol, the fact that Kestrel respects the simple \emph{get} and \emph{set} contract of Memcached allows the use of a great number of libraries that, while originally made for Memcached itself, can now be used transparently to send tasks to the Kestrel server.
+To distribute work tasks amongst the worker, and to send it from the server where the manager of the workers can reach it, we use a queueing service known as Kestrel. While it is quite new, it has proven its worth through use at Twitter Inc.\footnote{See the announcement at http://blog.twitter.com/2009/01/building-on-open-source.html}, where it powers a lot of the hugely-popular communication service. The particularity of this service is that it complies with the Memcached protocol. Memcached is the most widely-used service to store transient data and is used as a cache to avoid repeating costly operations. While it changes the semantics of this protocol, the fact that Kestrel respects the simple \emph{get} and \emph{set} contract of Memcached allows the use of a great number of libraries that, while originally made for Memcached itself, can now be used transparently to send tasks to the Kestrel server.
 
 Its basic semantics are that a \emph{set} operation associates a key, with a queue, and the payload given within the operation will be added to the end of that named queue. The \emph{get}\ operation instead takes the first element from that same named queue, or returns a special message if no element can be found.
 
@@ -81,7 +81,7 @@ It is a pure object-oriented language, where every method or function is actuall
 
 Sinatra\footnote{See http://www.sinatrarb.com}\ is a next-generation Web Framework built in the Ruby language. its particularities are its extreme simplicity while still keeping most of the power of other frameworks, a simplicity that also offers a great flexibility. It is still firmly rooted within the realm of Model-View-Controller frameworks. While it doesn't specify anything about the models, it organizes the code around controllers who match some specified URL. Any given operation can be made within those blocks of code, and the only contract is that they are expected to return a string of characters that will be sent to the user. This string can be generated directly, or, as it is preferable, created from the rendering of a specified template that will abstract away the view part.
 
-Sinatra itself can be run on a number of application servers, which range from small, focused ones such as Thin \footnote{see code.macournoyer.com/thin}\ or general Web servers such as Apache.
+Sinatra itself can be run on a number of application servers, which range from small, focused ones such as Thin \footnote{See code.macournoyer.com/thin}\ or general Web servers such as Apache.
 
 % paragraph sinatra (end)
 
