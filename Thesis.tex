@@ -28,7 +28,8 @@
 \author{Jean-Philippe bougie}
 \date{July 2009}
 
-\maketitle
+%\maketitle
+\input{Title}
 
 \pagenumbering{roman}
 \tableofcontents
@@ -36,9 +37,22 @@
 \listoftables
 
 \chapter*{Acknowledgements}
+\begin{flushright}
+  \begin{emph}
+    Thanks to my family and friends who supported me through this enduring ordeal.\\[1cm]
+    Special thanks to Alessandro Bozzon who patiently guided and advised me during the creation of this work.
+  \end{emph}
+\end{flushright}
 
 \begin{abstract}
-  This is an abstract
+  Web Services now allow access to a multitude of data over the Internet. They can now be used conjointly in order to create remarkable results. This goal of allowing automatic resolution of multi-domain queries has been the main research center of the Search Computing project of Politecnico di Milano. While this presents many challenges about the formal aspects of data querying and retrieval, it also leads to an open question as how to present this in an accessible interface.
+  
+  This interface is thus the subject of this research, where we explore the subject of natural language analysis within the context of multi-domain queries, a subject that has not been touched before in a formal manner.
+  We first proceeded by manually building and evaluating a corpus of data from external sources. This corpus was then used to implement and evaluate many algorithms for parsing sentences and extracting the domains which can be used to call the web services. These two main tasks were accomplished through the development of custom tools for the acquisition and rating of data.
+  
+  The work accomplished presents a good basis for the further development of the field, first for the creation of the corpus which will allow further research on the same topic. The developed tools will also be applicable in similar research or could easily be expanded to suit a more general setting.
+  
+  The algorithms presented and evaluated also present fruitful ways of splitting the data, and work well in the shown cases. They further present a solid groundwork for the elaboration on an engineering-based solution.
 \end{abstract}
 
 \pagenumbering{arabic}

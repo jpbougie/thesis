@@ -180,10 +180,36 @@ This interface was created using the jQuery toolkit for JavaScript, which allows
 
 The other major part of the tool chain created expressly for the subject of this research is the framework for background worker that is used to test query analysis and domain extraction strategies. It was decided to create such a system in order to be able to allow asynchronous processing, as well as being able to offload the main server. This system, nicknamed Bee, was created in Scala and uses libraries to convert to and from JSON, to access CouchDb as well as the Kestrel queue service. Refer to the Figure~\ref{fig:beeuml} for an overview of the classes that compose this framework.
 
+
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics[width=\linewidth]{images/beeuml}
+  \end{center}
+  \caption{Bee - Class Diagram}\label{fig:beeuml}
+\end{figure}
+
+
+
 \paragraph{Tasks} % (fold)
 \label{par:tasks}
 
 The central concept in Bee is that of a task. A task is a single unit of work that is coded by the user of the library.  Tasks themselves are centered around one function, run, which takes as parameters the original input fed from the queue, as well as the results of the previous tasks. In turn, the tasks return the results of their calculations in the JSON format. These tasks are organized in chains, where each chain is given a unique identifier. It is the ultimate result of the chain that is stored back into the document database. Table~\ref{tab:task_interface} presents an overview of the methods of the Task interface.
+
+\begin{table}
+  \caption{The task interface}
+  \label{tab:task_interface}
+  
+  \begin{center}
+    \begin{tabular}{c | p{10cm} }
+      Method & Description\\
+      \hline
+      setup(configuration) & Optionally implemented, provides a mean for the task to access its configuration, and use it to set itself up, for example by loading data dictionaries. This is only done once when the task is first loaded, so it is a good opportunity to cache things\\
+      identifier: string & This method returns the unique identifier of the task within the chain\\
+      run(inputParams): json & This is the core method of the task. It takes as input a Map of the input given to it from the queue as well as the results of the previous tasks in the chain, arranged according to their identifier. The output of the function should be a json value. Any exception thrown by this task will interrupt the chain and will be stored in the errors fields in the database.\\
+      version: string & Allows a task to report its version, forcing the re-computation of all the elements in a chain starting from this task.\\
+    \end{tabular}
+  \end{center}
+\end{table}
 
 % paragraph tasks (end)
 
@@ -191,6 +217,22 @@ The central concept in Bee is that of a task. A task is a single unit of work th
 \label{par:execution_profile}
 
 The result of the execution of a single task in wrapped in a class called Execution Profile, which contains, in addition to the raw result, a list of errors or exceptions the task has encountered, the version of the task that was executed and, finally, the time it took for the task to be executed. You can refer to the table~\ref{tab:execution_profile} for a summary of the fields of the execution profile.
+
+\begin{table}
+  \caption{Execution Profile Data Model}
+  \label{tab:execution_profile}
+  
+  \begin{center}
+    \begin{tabular}{c | c}
+      Element & Type\\
+      \hline
+      Errors & List of Strings\\
+      Result & JSON value\\
+      Duration & Milliseconds\\
+      Version & String\\
+    \end{tabular}
+  \end{center}
+\end{table}
 
 % paragraph execution_profile (end)
 
@@ -303,46 +345,6 @@ Finally, the logging options can be adjusted in the final section, allowing to c
 
 % paragraph configuration (end)
 
-\begin{table}
-  \caption{Execution Profile Data Model}
-  \label{tab:execution_profile}
-  
-  \begin{center}
-    \begin{tabular}{c | c}
-      Element & Type\\
-      \hline
-      Errors & List of Strings\\
-      Result & JSON value\\
-      Duration & Milliseconds\\
-      Version & String\\
-    \end{tabular}
-  \end{center}
-\end{table}
-
-\begin{figure}[ht!]
-  \begin{center}
-    \includegraphics[width=\linewidth]{images/beeuml}
-  \end{center}
-  \caption{Bee - Class Diagram}\label{fig:beeuml}
-\end{figure}
-
-
-
-\begin{table}
-  \caption{The task interface}
-  \label{tab:task_interface}
-  
-  \begin{center}
-    \begin{tabular}{c | p{10cm} }
-      Method & Description\\
-      \hline
-      setup(configuration) & Optionally implemented, provides a mean for the task to access its configuration, and use it to set itself up, for example by loading data dictionaries. This is only done once when the task is first loaded, so it is a good opportunity to cache things\\
-      identifier: string & This method returns the unique identifier of the task within the chain\\
-      run(inputParams): json & This is the core method of the task. It takes as input a Map of the input given to it from the queue as well as the results of the previous tasks in the chain, arranged according to their identifier. The output of the function should be a json value. Any exception thrown by this task will interrupt the chain and will be stored in the errors fields in the database.\\
-      version: string & Allows a task to report its version, forcing the re-computation of all the elements in a chain starting from this task.\\
-    \end{tabular}
-  \end{center}
-\end{table}
 % section bee_distributed_background_processing (end)
 
 \section{Parsing Strategies} % (fold)

@@ -6,19 +6,34 @@
 
 As explained in the earlier chapters, the goal of the project was two-fold: first, at the realization of the lack of a comprehensive corpus of data that could directly be used for the needs of a project, its creation was deemed necessary, and secondly, basing ourselves on that corpus, different techniques for analyzing and extracting domains could be tried and evaluated.
 
-We thus analyzed, over a period of time, a series of entries from Yahoo! Answers, which, once imported into the system, were found to present a sizable corpus.
+We thus analyzed, over a period of time, a series of entries from Yahoo! Answers, which, once imported into the system, were found to present a sizable corpus. The total number of entries analyzed is close to 3000, giving a good idea of the elements found within Yahoo's database.
 
 \subsection{Distribution of the ratings} % (fold)
 \label{sub:distribution_of_the_ratings}
 
 Sadly, most of the entries from Yahoo! Answers were not either of low value or not corresponding at all to our needs. We had to do a drastic pruning of the data set in order to get queries that were actually intelligible or corresponding to something that might be asked to a search engine. Furthermore, questions spanning more than one domain were even harder to find, and this is why they are in such small quantity.
 
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics[width=\linewidth]{images/entriesdistribution}
+  \end{center}
+  \caption{Distribution of the entries according to their rating}\label{fig:entries_distribution}
+\end{figure}
+
+Thus, out of the 2996 entries, 2181 or 73\% of the entries were rated as one star, which means that they were completely inappropriate for the purposes of this research, either because of the grammatical mistakes, because no actual questions was asked, or because it was a question of opinion asked to the audience at Yahoo! Answers.
+
+Further along, with questions that make sense but are of low value, we have the two-stars-rated questions in the number of 213, which represents about 5.5\% of the domain. The entries awarded three stars were usually factual questions that spanned a single domain. While they were interesting to see how the algorithms cope with a single domain, they are not pushing the domain much further. Their presence is though sizable, at 327 entries, or 9\%.
+
+The last and highest rankings of four and five stars were awarded to questions that spanned more than one domain, either rather implicitly for the former case, and explicitly on the latter. They were respectively at 207 (or 6\%) and 68 (or 2.2\%).
+
 % subsection distribution_of_the_ratings (end)
 
 \subsection{Interesting Elements} % (fold)
 \label{sub:interesting_elements}
 
-Out of the thousands of elements we created, we highlighted the most interesting one by giving them a five-star rating. These hundred elements represent exactly the kind of problems we are looking to solve in the future, and the kind of questions that the SeCo project wants answered.
+Out of the three thousands elements we extracted, we highlighted the most interesting ones by giving them a five-star rating. These seventy or so elements represent exactly the kind of problems we are looking to solve in the future, and the kind of questions that the SeCo project wants answered. While this is a low number, it is still sufficient to test the various algorithms we have prepared and evaluate their results in a variety of cases.
+
+Most of them are found within the tourism category, and present questions that could be answered by the system and which span more than one domain.
 
 % subsection interesting_elements (end)
 
@@ -34,7 +49,7 @@ We first began by evaluating the two proposed parsers, the Stanford Parser and t
 
 Given the relative simplicity of the results given by the Shallow Parser, one might expect it to be much easier to calculate, and be much simpler to use. In fact, what we have found out is that in general, parsing an element using the shallow parser takes as much as three times longer than doing the same with the Stanford parser. This can be explained by the fact that this parser requires a series of tool to be called sequentially, loosing a lot of time in the overhead of passing the elements from one program to another. On the other hand, the stanford is a unique Java library where everything is loaded from the start, before any requests are actually made.
 
-The results given by the Stanford parser were also obviously more finer, as the shallow parser only does a coarse grouping. It was also less reliable, frequently returning no results because the input was not given in a proper english, a situation where the Stanford parser still managed to make an intelligible parsing.
+The results given by the Stanford parser were also obviously finer, as the shallow parser only does a coarse grouping. It was also less reliable, frequently returning no results because the input was not given in a proper english, a situation where the Stanford parser still managed to make an intelligible parsing.
 
 It was thus very easy for us to choose to continue solely with the Stanford parser, both because of the quality of its results and its performance.
 
@@ -43,12 +58,18 @@ It was thus very easy for us to choose to continue solely with the Stanford pars
 \subsection{Splitting Strategies} % (fold)
 \label{sub:splitting_strategies}
 
-While, in some simpler cases, the first-level split actually manages to divide the elements into different domains, most of the time, it returns a wrong result, mostly due to the presence of punctuation and the separation of the question word, such as \emph{where}, \emph{who} or \emph{what}\, who are separated into a different sub-tree. This throws off the first-level split algorithm, but they are completely ignored by the clause parser. Thus, it is easy to see that comparatively, the clause parser is a much finer alternative. On itself, it presents good results, considering more than XX\% of the elements are successfully split into their respective domains.
+While, in some simpler cases, the first-level split actually manages to divide the elements into different domains, most of the time, it returns a wrong result, mostly due to the presence of punctuation and the separation of the question word, such as \emph{where}, \emph{who} or \emph{what}\, who are separated into a different sub-tree. This throws off the first-level split algorithm, but they are completely ignored by the clause parser. Thus, it is easy to see that comparatively, the clause parser is a much finer alternative. On itself, it presents good results, considering more than 75\% of the elements are successfully split into their respective domains.
 
 % subsection splitting_strategies (end)
 
 \subsection{Domain Extraction} % (fold)
 \label{sub:domain_extraction}
+
+In the domain extraction case, we also have implemented and evaluated two strategies. One depends on the WordNet domains file, which contain, for each word in the WordNet database, its association to one or more domain from the DEWEY index. The other, which will call WordNet topics, depends on a special relationship that is given between words  directly within the WordNet database.
+
+In terms of results, the first approach gives interesting results, although they usually include far too many generic results, gotten from the secondary senses. In particular, while it is often low because of its presence, \emph{factotum}\ appears in almost every single answer. On the other hand, all the words searched contained at least one or more domains that were fitting with the research results, making it a very viable alternative.
+
+While the domains approach had the problem of giving too many results, the approach based on the included WordNet topics has the opposite one, in that few words are actually tagged with their category. It makes it a poor solution, as in very few cases, it gave a fitting answer. The answers are usually completely absent, or in the few cases where there are any results, they take a completely different meaning of the word.
 
 
 % subsection domain_extraction (end)
